@@ -5,8 +5,31 @@ from wdns_constants import *
 class MessageParseException(Exception):
     pass
 
+class NameException(Exception):
+    pass
+
 class RdataReprException(Exception):
     pass
+
+def len_name(str py_name):
+    cdef wdns_res res
+    cdef uint8_t *name
+    cdef uint8_t *name_end
+    cdef size_t sz
+
+    name = <uint8_t *> PyString_AsString(py_name)
+    name_end = name + len(py_name)
+    res = wdns_len_uname(name, name_end, &sz)
+    if res != wdns_res_success:
+        raise NameException, repr(py_name)
+    return sz
+
+def reverse_name(str name):
+    cdef uint8_t rev[255] # WDNS_MAXLEN_NAME
+
+    sz = len_name(name)
+    wdns_reverse_name(<uint8_t *> PyString_AsString(name), sz, rev)
+    return PyString_FromStringAndSize(<char *> rev, sz)
 
 def domain_to_str(str src):
     cdef char dst[1025] # WDNS_PRESLEN_NAME
