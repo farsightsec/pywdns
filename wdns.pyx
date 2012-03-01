@@ -1,11 +1,4 @@
-from cpython cimport bool
-
 include "wdns.pxi"
-
-QUESTION = 0
-ANSWER = 1
-AUTHORITY = 2
-ADDITIONAL = 3
 
 from wdns_constants import *
 
@@ -19,10 +12,10 @@ def domain_to_str(str src):
 
 def str_to_name(char *src):
     cdef wdns_name_t name
-    cdef wdns_msg_status status
+    cdef wdns_res res
 
-    status = wdns_str_to_name(src, &name)
-    if status != wdns_msg_success:
+    res = wdns_str_to_name(src, &name)
+    if res != wdns_res_success:
         raise Exception, 'wdns_str_to_name() failed'
     s = PyString_FromStringAndSize(<char *> name.data, name.len)
     free(name.data)
@@ -61,15 +54,15 @@ def parse_message(bytes pkt):
     cdef wdns_rdata_t *dns_rdata
     cdef wdns_rrset_t *dns_rrset
     cdef wdns_rrset_array_t *a
-    cdef wdns_msg_status status
+    cdef wdns_res res
     cdef uint8_t *p
 
     p = <uint8_t *> PyString_AsString(pkt)
     if p == NULL:
         raise Exception('PyString_AsString() failed')
 
-    status = wdns_parse_message(&m, p, PyString_Size(pkt))
-    if status == wdns_msg_success:
+    res = wdns_parse_message(&m, p, PyString_Size(pkt))
+    if res == wdns_res_success:
         msg = message()
         msg.id = m.id
         msg.flags = m.flags
@@ -119,7 +112,7 @@ def parse_message(bytes pkt):
         wdns_clear_message(&m)
         return msg
     else:
-        raise WreckException('wdns_parse_message() returned %s' % status)
+        raise WreckException('wdns_parse_message() returned %s' % res)
 
 cdef class message(object):
     cdef public int id
@@ -240,7 +233,7 @@ cdef class rdata(object):
         cdef size_t dstsz
         cdef uint8_t *rd
         cdef uint16_t rdlen
-        cdef wdns_msg_status status
+        cdef wdns_res res
 
         if self.data == None:
             raise Exception, 'rdata object not initialized'

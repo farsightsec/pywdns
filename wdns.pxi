@@ -1,44 +1,28 @@
-cdef extern from "stdio.h":
-    ctypedef void FILE
-    FILE *stdout
+from cpython cimport bool
+from cpython.string cimport *
+from libc.stddef cimport *
+from libc.stdint cimport *
+from libc.stdio cimport *
+from libc.stdlib cimport *
+from libc.string cimport *
 
-cdef extern from "stdint.h":
-    ctypedef unsigned char uint8_t
-    ctypedef unsigned short uint16_t
-    ctypedef unsigned int uint32_t
-
-cdef extern from "stdlib.h":
-    ctypedef unsigned long size_t
-    void free(void *ptr)
-    void *malloc(size_t size)
-    void *realloc(void *ptr, size_t size)
-    size_t strlen(char *s)
-    char *strcpy(char *dest, char *src)
- 
-cdef extern from "Python.h":
-    object PyString_FromString(char *v)
-    object PyString_FromStringAndSize(char *v, int len)
-    Py_ssize_t PyString_Size(object string)
-    char *PyString_AsString(object string)
-
-cdef extern from "msg.h":
-
-    ctypedef enum wdns_msg_status:
-        wdns_msg_success
-        wdns_msg_err_invalid_compression_pointer
-        wdns_msg_err_invalid_length_octet
-        wdns_msg_err_invalid_opcode
-        wdns_msg_err_invalid_rcode
-        wdns_msg_err_len
-        wdns_msg_err_malloc
-        wdns_msg_err_name_len
-        wdns_msg_err_name_overflow
-        wdns_msg_err_out_of_bounds
-        wdns_msg_err_overflow
-        wdns_msg_err_parse_error
-        wdns_msg_err_qdcount
-        wdns_msg_err_unknown_opcode
-        wdns_msg_err_unknown_rcode
+cdef extern from "wdns.h":
+    ctypedef enum wdns_res:
+        wdns_res_success
+        wdns_res_invalid_compression_pointer
+        wdns_res_invalid_length_octet
+        wdns_res_invalid_opcode
+        wdns_res_invalid_rcode
+        wdns_res_len
+        wdns_res_malloc
+        wdns_res_name_len
+        wdns_res_name_overflow
+        wdns_res_out_of_bounds
+        wdns_res_overflow
+        wdns_res_parse_error
+        wdns_res_qdcount
+        wdns_res_unknown_opcode
+        wdns_res_unknown_rcode
 
     ctypedef struct wdns_name_t:
         uint8_t             len
@@ -81,15 +65,12 @@ cdef extern from "msg.h":
         uint16_t            flags
         uint16_t            rcode
 
-    void    wdns_clear_message(wdns_message_t *m)
-
-    char *          wdns_opcode_to_str(uint16_t dns_opcode)
-    char *          wdns_rcode_to_str(uint16_t dns_rcode)
-    char *          wdns_rrclass_to_str(uint16_t dns_class)
-    char *          wdns_rrtype_to_str(uint16_t dns_type)
-    size_t          wdns_domain_to_str(uint8_t *src, size_t src_len, char *dst)
-    char *          wdns_rdata_to_str(uint8_t *rdata, uint16_t rdlen, uint16_t rrtype, uint16_t rrclass)
-    wdns_msg_status wdns_str_to_name(char *str, wdns_name_t *name)
-
-    wdns_msg_status wdns_parse_message(wdns_message_t *m, uint8_t *pkt, size_t len)
-
+    char *      wdns_opcode_to_str(uint16_t)
+    char *      wdns_rcode_to_str(uint16_t)
+    char *      wdns_rrclass_to_str(uint16_t)
+    char *      wdns_rrtype_to_str(uint16_t)
+    char *      wdns_rdata_to_str(uint8_t *, uint16_t, uint16_t, uint16_t)
+    size_t      wdns_domain_to_str(uint8_t *, size_t, char *)
+    wdns_res    wdns_str_to_name(char *, wdns_name_t *)
+    wdns_res    wdns_parse_message(wdns_message_t *, uint8_t *, size_t)
+    void        wdns_clear_message(wdns_message_t *)
