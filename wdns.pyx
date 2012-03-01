@@ -67,6 +67,31 @@ def count_labels(str py_name):
         raise NameException, repr(py_name)
     return nlabels
 
+def is_subdomain(str py_name0, str py_name1):
+    cdef bool val
+    cdef wdns_name_t name0
+    cdef wdns_name_t name1
+    cdef size_t sz
+
+    name0.data = <uint8_t *> PyString_AsString(py_name0)
+    name0.len = len(py_name0)
+
+    name1.data = <uint8_t *> PyString_AsString(py_name1)
+    name1.len = len(py_name1)
+
+    res = wdns_len_uname(name0.data, name0.data + name0.len, &sz)
+    if res != wdns_res_success:
+        raise NameException, repr(py_name0)
+
+    res = wdns_len_uname(name1.data, name1.data + name1.len, &sz)
+    if res != wdns_res_success:
+        raise NameException, repr(py_name1)
+
+    res = wdns_is_subdomain(&name0, &name1, &val)
+    if res != wdns_res_success:
+        raise NameException
+    return val
+
 def domain_to_str(str src):
     cdef char dst[1025] # WDNS_PRESLEN_NAME
     wdns_domain_to_str(<uint8_t *> PyString_AsString(src), len(src), dst)

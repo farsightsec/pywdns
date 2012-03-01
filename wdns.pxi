@@ -1,4 +1,4 @@
-from cpython cimport bool
+from libcpp cimport bool
 from cpython.string cimport *
 from libc.stddef cimport *
 from libc.stdint cimport *
@@ -78,3 +78,4 @@ cdef extern from "wdns.h":
     wdns_res    wdns_len_uname(uint8_t *, uint8_t *, size_t *)
     wdns_res    wdns_left_chop(wdns_name_t *, wdns_name_t *)
     wdns_res    wdns_count_labels(wdns_name_t *, size_t *)
+    wdns_res    wdns_is_subdomain(wdns_name_t *, wdns_name_t *, bool *)
