@@ -76,3 +76,4 @@ cdef extern from "wdns.h":
     void        wdns_clear_message(wdns_message_t *)
     void        wdns_reverse_name(uint8_t *, size_t, uint8_t *)
     wdns_res    wdns_len_uname(uint8_t *, uint8_t *, size_t *)
+    wdns_res    wdns_left_chop(wdns_name_t *, wdns_name_t *)
