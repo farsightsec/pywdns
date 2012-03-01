@@ -49,6 +49,24 @@ def left_chop(str py_name):
         raise NameException, repr(py_name)
     return PyString_FromStringAndSize(<char *> chop.data, chop.len)
 
+def count_labels(str py_name):
+    cdef wdns_name_t name
+    cdef wdns_res res
+    cdef size_t nlabels
+    cdef size_t sz
+
+    name.data = <uint8_t *> PyString_AsString(py_name)
+    name.len = len(py_name)
+
+    res = wdns_len_uname(name.data, name.data + name.len, &sz)
+    if res != wdns_res_success:
+        raise NameException, repr(py_name)
+
+    res = wdns_count_labels(&name, &nlabels)
+    if res != wdns_res_success:
+        raise NameException, repr(py_name)
+    return nlabels
+
 def domain_to_str(str src):
     cdef char dst[1025] # WDNS_PRESLEN_NAME
     wdns_domain_to_str(<uint8_t *> PyString_AsString(src), len(src), dst)
