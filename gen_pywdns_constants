@@ -1,8 +1,17 @@
 #!/usr/bin/env python
 
-w = open('pywdns/wdns_constants.py', 'w')
+from subprocess import Popen, PIPE
 
-for line in open('wdns/constants.h'):
+p = Popen('pkg-config --cflags-only-I libwdns', shell=True, stdout=PIPE)
+if p.wait() != 0:
+    sys.stderr.write('pkg-config failed\n')
+    sys.exit(1)
+header_dir = p.stdout.read().strip().partition('-I')[2]
+header_fname = header_dir + '/wdns.h'
+
+w = open('wdns_constants.py', 'w')
+
+for line in open(header_fname):
     if 'WDNS_TYPE_' in line:
         rrtype = line.split()[1].split('_', 2)[2]
         rrtype_val = line.split()[-1]
@@ -26,7 +35,7 @@ for line in open('wdns/constants.h'):
 
 w.write('TYPES = {\n')
 
-for line in open('wdns/constants.h'):
+for line in open(header_fname):
     if 'WDNS_TYPE_' in line:
         rrtype = line.split()[1].split('_', 2)[2]
         rrtype_val = line.split()[-1]
