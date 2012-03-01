@@ -2,7 +2,10 @@ include "wdns.pxi"
 
 from wdns_constants import *
 
-class WreckException(Exception):
+class MessageParseException(Exception):
+    pass
+
+class RdataReprException(Exception):
     pass
 
 def domain_to_str(str src):
@@ -112,7 +115,7 @@ def parse_message(bytes pkt):
         wdns_clear_message(&m)
         return msg
     else:
-        raise WreckException('wdns_parse_message() returned %s' % res)
+        raise MessageParseException('wdns_parse_message() returned %s' % res)
 
 cdef class message(object):
     cdef public int id
@@ -243,7 +246,7 @@ cdef class rdata(object):
 
         dst = wdns_rdata_to_str(rd, rdlen, self.rrtype, self.rrclass)
         if dst == NULL:
-            raise WreckException, 'wdns_rdata_to_str() failed'
+            raise RdataReprException
 
         s = PyString_FromString(dst)
         free(dst)
