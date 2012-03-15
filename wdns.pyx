@@ -97,6 +97,13 @@ def domain_to_str(str src):
     wdns_domain_to_str(<uint8_t *> PyString_AsString(src), len(src), dst)
     return PyString_FromString(dst)
 
+def str_to_rrtype(char *src):
+    cdef uint16_t res
+    res = wdns_str_to_rrtype(src)
+    if res == 0:
+        raise Exception, 'wdns_str_to_rrtype() failed'
+    return res
+
 def str_to_name(char *src):
     cdef wdns_name_t name
     cdef wdns_res res
