@@ -140,7 +140,7 @@ def rrtype_to_str(uint16_t dns_type):
     cdef char *s
     s = wdns_rrtype_to_str(dns_type)
     if s == NULL:
-        return str(dns_type)
+        return 'TYPE' + str(dns_type)
     return s
 
 def parse_message(bytes pkt):
