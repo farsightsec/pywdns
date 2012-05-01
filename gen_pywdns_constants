@@ -2,6 +2,7 @@
 
 from subprocess import Popen, PIPE
 import os
+import sys
 
 p = Popen('pkg-config --cflags-only-I libwdns', shell=True, stdout=PIPE)
 if p.wait() != 0:
