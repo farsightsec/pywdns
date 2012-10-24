@@ -10,7 +10,7 @@ if p.wait() != 0:
     sys.exit(1)
 out = p.stdout.read().strip()
 if out:
-    header_dir = p.stdout.read().strip().partition('-I')[2]
+    header_dir = out.partition('-I')[2]
     header_fname = header_dir + '/wdns.h'
 else:
     header_fname = '/usr/include/wdns.h'
