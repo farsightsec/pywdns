@@ -1,0 +1,19 @@
+pywdns
+======
+
+This is `pywdns`, a Python extension module implemented in
+[Cython](http://cython.org/) for the [wdns](https://github.com/farsightsec/wdns)
+C library.
+
+Building
+--------
+
+Building from a git checkout requires a C compiler, Python, Cython, and the
+`wdns` library to be installed first. Distribution tarballs ship with a copy of
+the Cython-generated code and do not require Cython to actually be installed.
+
+`pywdns` is built by running `setup.py`:
+
+```
+    python setup.py build
+```
