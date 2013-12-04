@@ -7,7 +7,6 @@ from distutils.core import setup
 from distutils.extension import Extension
 import os
 
-print 'executing ./gen_pywdns_constants'
 os.system('./gen_pywdns_constants')
 
 try:
