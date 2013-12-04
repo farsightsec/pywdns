@@ -21,9 +21,12 @@ try:
 
     )
 except ImportError:
-    setup(
-        name = NAME,
-        version = VERSION,
-        ext_modules = [ Extension('wdns', ['wdns.c'], libraries = ['wdns']) ],
-        py_modules = ['wdns_constants'],
-    )
+    if os.path.isfile('wdns.c'):
+        setup(
+            name = NAME,
+            version = VERSION,
+            ext_modules = [ Extension('wdns', ['wdns.c'], libraries = ['wdns']) ],
+            py_modules = ['wdns_constants'],
+        )
+    else:
+        raise
