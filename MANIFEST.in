@@ -1,1 +1,1 @@
-include COPYRIGHT gen_pywdns_constants wdns.c wdns.pxi wdns.pyx wdns_constants.py
+include COPYRIGHT LICENSE gen_pywdns_constants wdns.c wdns.pxi wdns.pyx wdns_constants.py
