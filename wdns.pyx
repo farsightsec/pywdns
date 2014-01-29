@@ -25,10 +25,13 @@ def len_name(str py_name):
     return sz
 
 def reverse_name(str name):
+    cdef wdns_res res
     cdef uint8_t rev[255] # WDNS_MAXLEN_NAME
 
     sz = len_name(name)
-    wdns_reverse_name(<uint8_t *> PyString_AsString(name), sz, rev)
+    res = wdns_reverse_name(<uint8_t *> PyString_AsString(name), sz, rev)
+    if res != wdns_res_success:
+        raise NameException, repr(name)
     return PyString_FromStringAndSize(<char *> rev, sz)
 
 def left_chop(str py_name):
