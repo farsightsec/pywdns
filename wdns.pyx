@@ -26,7 +26,7 @@ def len_name(str py_name):
 
 def reverse_name(str name):
     cdef wdns_res res
-    cdef uint8_t rev[255] # WDNS_MAXLEN_NAME
+    cdef uint8_t rev[WDNS_MAXLEN_NAME]
 
     sz = len_name(name)
     res = wdns_reverse_name(<uint8_t *> PyString_AsString(name), sz, rev)
@@ -96,7 +96,7 @@ def is_subdomain(str py_name0, str py_name1):
     return val
 
 def domain_to_str(str src):
-    cdef char dst[1025] # WDNS_PRESLEN_NAME
+    cdef char dst[WDNS_PRESLEN_NAME]
     wdns_domain_to_str(<uint8_t *> PyString_AsString(src), len(src), dst)
     return PyString_FromString(dst)
 

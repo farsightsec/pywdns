@@ -7,6 +7,14 @@ from libc.stdlib cimport *
 from libc.string cimport *
 
 cdef extern from "wdns.h":
+    enum:
+        WDNS_LEN_HEADER
+        WDNS_MAXLEN_NAME
+
+        WDNS_PRESLEN_NAME
+        WDNS_PRESLEN_TYPE_A
+        WDNS_PRESLEN_TYPE_AAAA
+
     ctypedef enum wdns_res:
         wdns_res_success
         wdns_res_invalid_compression_pointer
