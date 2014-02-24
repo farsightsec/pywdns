@@ -97,8 +97,13 @@ def is_subdomain(str py_name0, str py_name1):
 
 def domain_to_str(str src):
     cdef char dst[WDNS_PRESLEN_NAME]
-    wdns_domain_to_str(<uint8_t *> PyString_AsString(src), len(src), dst)
-    return PyString_FromString(dst)
+    cdef size_t sz
+
+    if len(src) >= WDNS_PRESLEN_NAME:
+        raise NameException
+
+    sz = wdns_domain_to_str(<uint8_t *> PyString_AsString(src), len(src), dst)
+    return PyString_FromStringAndSize(dst, sz)
 
 def str_to_rrtype(char *src):
     cdef uint16_t res
