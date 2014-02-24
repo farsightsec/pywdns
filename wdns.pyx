@@ -146,6 +146,29 @@ def rrtype_to_str(uint16_t dns_type):
         return 'TYPE' + str(dns_type)
     return s
 
+def rdata_to_str(str rdata, uint16_t rrtype, uint16_t rrclass):
+    """
+    rdata_to_str(data, rrtype, rrclass)
+    """
+    cdef char *dst
+    cdef uint8_t *rd
+    cdef uint16_t rdlen
+    cdef wdns_res res
+
+    if rdata == None:
+        raise Exception, 'rdata object not initialized'
+
+    rd = <uint8_t *> PyString_AsString(rdata)
+    rdlen = PyString_Size(rdata)
+
+    dst = wdns_rdata_to_str(rd, rdlen, rrtype, rrclass)
+    if dst == NULL:
+        raise RdataReprException
+
+    s = PyString_FromString(dst)
+    free(dst)
+    return s
+
 def parse_message(bytes pkt):
     cdef wdns_message_t m
     cdef wdns_rdata_t *dns_rdata
@@ -321,27 +344,13 @@ cdef class rdata(object):
     cdef public int rrtype
 
     def __init__(self, str data, int rrclass, int rrtype):
+        """
+        __init__(self, data, rrclass, rrtype)
+        """
         self.data = data
         self.rrclass = rrclass
         self.rrtype = rrtype
 
     def __repr__(self):
-        cdef char *dst
-        cdef size_t dstsz
-        cdef uint8_t *rd
-        cdef uint16_t rdlen
-        cdef wdns_res res
+        return rdata_to_str(self.data, self.rrtype, self.rrclass)
 
-        if self.data == None:
-            raise Exception, 'rdata object not initialized'
-
-        rd = <uint8_t *> PyString_AsString(self.data)
-        rdlen = PyString_Size(self.data)
-
-        dst = wdns_rdata_to_str(rd, rdlen, self.rrtype, self.rrclass)
-        if dst == NULL:
-            raise RdataReprException
-
-        s = PyString_FromString(dst)
-        free(dst)
-        return s
