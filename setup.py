@@ -14,7 +14,7 @@ try:
     setup(
         name = NAME,
         version = VERSION,
-        ext_modules = [ Extension('wdns', ['wdns.pyx'], libraries = ['wdns']) ],
+        ext_modules = [ Extension('wdns', ['wdns.pyx'], libraries = ['wdns'], include_dirs = ['/usr/local/include/']) ],
         cmdclass = {'build_ext': build_ext},
         py_modules = ['wdns_constants'],
 
@@ -24,7 +24,7 @@ except ImportError:
         setup(
             name = NAME,
             version = VERSION,
-            ext_modules = [ Extension('wdns', ['wdns.c'], libraries = ['wdns']) ],
+            ext_modules = [ Extension('wdns', ['wdns.c'], libraries = ['wdns'], include_dirs = ['/usr/local/include/']) ],
             py_modules = ['wdns_constants'],
         )
     else:
