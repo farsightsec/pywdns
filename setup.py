@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 NAME = 'pywdns'
-VERSION = '0.5'
+VERSION = '0.6.0'
 
 from distutils.core import setup
 from distutils.extension import Extension
