@@ -5,9 +5,9 @@ VERSION = '0.5'
 
 from distutils.core import setup
 from distutils.extension import Extension
-import os
+import subprocess
 
-os.system('./gen_pywdns_constants')
+subprocess.check_call('./gen_pywdns_constants')
 
 try:
     from Cython.Distutils import build_ext
