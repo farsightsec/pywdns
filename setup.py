@@ -34,6 +34,7 @@ try:
 
     )
 except ImportError:
+    import os
     if os.path.isfile('wdns.c'):
         setup(
             name = NAME,
