@@ -1,17 +1,60 @@
+"""
+Low-level DNS library.  Python bindings.
+
+domain = 'fsi.io'
+name = str_to_name(domain) -> '\\x03fsi\\x02io\\x00'
+domain_to_str(name) -> 'fsi.io.'
+
+rname = reverse_name(name) -> '\\x02io\\x03fsi\\x00'
+left_chop(name) -> '\\x02io\\x00'
+count_labels(name) -> 2
+
+is_subdomain(str_to_name('www.%s' % domain), name) -> True
+is_subdomain(name, str_to_name('www.%s' % domain)) -> False
+
+str_to_rrtype('A') -> 1
+opcode_to_str(0) -> 'QUERY'
+rcode_to_str(3) -> 'NXDOMAIN'
+
+rrclass_to_str(1) -> 'IN'
+rrtype_to_str(16) -> 'TXT'
+rdata_to_str('\\x10text record data', wdns.TYPE_TXT, wdns.CLASS_IN) ->
+        'text record data'
+"""
+
 include "wdns.pxi"
 
 from wdns_constants import *
 
 class MessageParseException(Exception):
-    pass
+    """
+    Raised when message_parse is called with invalid data.
+    """
 
 class NameException(Exception):
-    pass
+    """
+    Raised when an invalid name is passed to a function.
+    """
 
 class RdataReprException(Exception):
-    pass
+    """
+    Raised when binary record data can not be successfully converted to
+    presentation format.  Can occur if the data itself is corrupt or if the
+    rrtype or rrclass fields are incorrect for the binary data.
+    """
 
 def len_name(str py_name):
+    """
+    len_name(name) -> len(name)
+
+    @param name: A wire format DNS name
+    @type name: string
+
+    @return: length of the wire format name
+    @rtype: int
+
+    @raise NameException: If name is malformed.
+    """
     cdef wdns_res res
     cdef uint8_t *name
     cdef uint8_t *name_end
@@ -25,13 +68,42 @@ def len_name(str py_name):
     return sz
 
 def reverse_name(str name):
-    cdef uint8_t rev[255] # WDNS_MAXLEN_NAME
+    """
+    reverse(name)
+
+    reverses the fields of name
+
+    e.g. '\\x03fsi\\x02io\\x00' -> '\\x02io\\x03fsi\\x00'
+
+    @param name: A wire format DNS name
+    @type name: string
+
+    @rtype: string, A wire format DNS name
+    @return: name, fields reversed
+
+    @raise NameException: If name is malformed.
+    """
+    cdef wdns_res res
+    cdef uint8_t rev[WDNS_MAXLEN_NAME]
 
     sz = len_name(name)
-    wdns_reverse_name(<uint8_t *> PyString_AsString(name), sz, rev)
+    res = wdns_reverse_name(<uint8_t *> PyString_AsString(name), sz, rev)
+    if res != wdns_res_success:
+        raise NameException, repr(name)
     return PyString_FromStringAndSize(<char *> rev, sz)
 
 def left_chop(str py_name):
+    """
+    left_chop(name)
+
+    @param name: A wire format DNS name
+    @type name: string
+
+    @return: name with the leftmost label removed
+    @rtype: string, A wire format DNS name
+
+    @raise NameException: If name is malformed.
+    """
     cdef wdns_name_t chop
     cdef wdns_name_t name
     cdef wdns_res res
@@ -50,6 +122,16 @@ def left_chop(str py_name):
     return PyString_FromStringAndSize(<char *> chop.data, chop.len)
 
 def count_labels(str py_name):
+    """
+    count_labels(name)
+
+    Returns the number of labels in a wire format DNS name.
+
+    @param name: A wire format DNS name
+    @type name: string
+
+    @rtype: int
+    """
     cdef wdns_name_t name
     cdef wdns_res res
     cdef size_t nlabels
@@ -68,6 +150,18 @@ def count_labels(str py_name):
     return nlabels
 
 def is_subdomain(str py_name0, str py_name1):
+    """
+    is_subdomain(a, b)
+
+    Returns whether or not b is a subdomain of a.
+
+    @param a: A wire format DNS name
+    @type a: string
+    @param b: A wire format DNS name
+    @type b: string
+
+    @rtype: bool
+    """
     cdef bool val
     cdef wdns_name_t name0
     cdef wdns_name_t name1
@@ -93,11 +187,39 @@ def is_subdomain(str py_name0, str py_name1):
     return val
 
 def domain_to_str(str src):
-    cdef char dst[1025] # WDNS_PRESLEN_NAME
-    wdns_domain_to_str(<uint8_t *> PyString_AsString(src), len(src), dst)
-    return PyString_FromString(dst)
+    """
+    domain_to_str(src)
+
+    Decodes a wire format domain name.
+
+    @param src: A wire format DNS name
+    @type src: string
+
+    @return: Decoded domain name.
+    @rtype: string
+    """
+    cdef char dst[WDNS_PRESLEN_NAME]
+    cdef size_t sz
+
+    if len(src) >= WDNS_PRESLEN_NAME:
+        raise NameException
+
+    sz = wdns_domain_to_str(<uint8_t *> PyString_AsString(src), len(src), dst)
+    return PyString_FromStringAndSize(dst, sz)
 
 def str_to_rrtype(char *src):
+    """
+    str_to_rrtype(src)
+
+    Returns the numeric rrtype for src.
+    e.g. A -> 1, NS -> 2
+
+    @type src: string
+
+    @rtype: int
+
+    @raise Exception: Invalid or unknown rtype string.
+    """
     cdef uint16_t res
     res = wdns_str_to_rrtype(src)
     if res == 0:
@@ -105,6 +227,19 @@ def str_to_rrtype(char *src):
     return res
 
 def str_to_name(char *src):
+    """
+    str_to_name(src)
+
+    Encodes a wire format domain name.
+
+    @type src: string
+
+    @return: Wire-format domain name.
+    @rtype: string
+
+    @except Exception: Name longer than WDNS_MAXLEN_NAME or memory
+    allocation error.
+    """
     cdef wdns_name_t name
     cdef wdns_res res
 
@@ -116,6 +251,15 @@ def str_to_name(char *src):
     return s
 
 def opcode_to_str(uint16_t dns_opcode):
+    """
+    opcode_to_str(dns_opcode)
+
+    Converts a DNS opcode to string presentation format.
+
+    @type dns_opcode: int
+
+    @rtype: string
+    """
     cdef char *s
     s = wdns_opcode_to_str(dns_opcode)
     if s == NULL:
@@ -123,6 +267,15 @@ def opcode_to_str(uint16_t dns_opcode):
     return s
 
 def rcode_to_str(uint16_t dns_rcode):
+    """
+    rcode_to_str(dns_rcode)
+
+    Converts a DNS rcode to string presentation format.
+
+    @type dns_rcode: int
+
+    @rtype: string
+    """
     cdef char *s
     s = wdns_rcode_to_str(dns_rcode)
     if s == NULL:
@@ -130,6 +283,15 @@ def rcode_to_str(uint16_t dns_rcode):
     return s
 
 def rrclass_to_str(uint16_t dns_class):
+    """
+    rrclass_to_str(dns_class)
+
+    Converts a DNS rrclass to string presentation format.
+
+    @type dns_class: int
+
+    @rtype: string
+    """
     cdef char *s
     s = wdns_rrclass_to_str(dns_class)
     if s == NULL:
@@ -137,13 +299,65 @@ def rrclass_to_str(uint16_t dns_class):
     return s
 
 def rrtype_to_str(uint16_t dns_type):
+    """
+    rrtype_to_str(dns_type)
+
+    Converts a DNS rrtype to string presentation format.
+
+    @type dns_type: int
+
+    @rtype: string
+    """
     cdef char *s
     s = wdns_rrtype_to_str(dns_type)
     if s == NULL:
         return 'TYPE' + str(dns_type)
     return s
 
+def rdata_to_str(str rdata, uint16_t rrtype, uint16_t rrclass):
+    """
+    rdata_to_str(data, rrtype, rrclass)
+
+    Converts a DNS rdata record to string presentation format.  Requires
+    rrtype and rrclass.
+
+    @type rdata: string (binary)
+    @type rrtype: int
+    @type rrclass: int
+
+    @rtype: string
+    """
+    cdef char *dst
+    cdef uint8_t *rd
+    cdef uint16_t rdlen
+    cdef wdns_res res
+
+    if rdata == None:
+        raise Exception, 'rdata object not initialized'
+
+    rd = <uint8_t *> PyString_AsString(rdata)
+    rdlen = PyString_Size(rdata)
+
+    dst = wdns_rdata_to_str(rd, rdlen, rrtype, rrclass)
+    if dst == NULL:
+        raise RdataReprException
+
+    s = PyString_FromString(dst)
+    free(dst)
+    return s
+
 def parse_message(bytes pkt):
+    """
+    parse_message(pkt)
+
+    Parses a DNS message from a payload.
+
+    @type pkt: binary payload data
+
+    @rtype: wdns.message
+
+    @raise MessageParseException: If the message is invalid.
+    """
     cdef wdns_message_t m
     cdef wdns_rdata_t *dns_rdata
     cdef wdns_rrset_t *dns_rrset
@@ -209,19 +423,70 @@ def parse_message(bytes pkt):
         raise MessageParseException('wdns_parse_message() returned %s' % res)
 
 cdef class message(object):
+    """
+    An object wrapping a DNS message.
+    """
     cdef public int id
+    """
+    @ivar id: Identifier
+    @type id: int
+    """
     cdef public int flags
+    """
+    @ivar flags: Query/Response Flag
+    @type flags: int
+    """
     cdef public int rcode
+    """
+    @ivar rcode: Response Code
+    @type rcode: int
+    """
     cdef public int opcode
+    """
+    @ivar opcode: Opcode
+    @type opcode: int
+    """
     cdef public list sec
+    """
+    @ivar sec: Sections
+    @type sec: list
+    """
 
     cdef public bool qr
+    """
+    @ivar qr: Query/Response Flag
+    @type qr: bool
+    """
     cdef public bool aa
+    """
+    @ivar aa: Authoritative Answer Flag
+    @type aa: bool
+    """
     cdef public bool tc
+    """
+    @ivar tc: Truncation Flag
+    @type tc: bool
+    """
     cdef public bool rd
+    """
+    @ivar rd: Recursion Desired Flag
+    @type rd: bool
+    """
     cdef public bool ra
+    """
+    @ivar ra: Recursion Available Flag
+    @type ra: bool
+    """
     cdef public bool ad
+    """
+    @ivar ad: Authenticated Data Flag
+    @type ad: bool
+    """
     cdef public bool cd
+    """
+    @ivar cd: Checking Disabled Flag
+    @type cd: bool
+    """
 
     parse = staticmethod(parse_message)
 
@@ -279,9 +544,24 @@ cdef class message(object):
         return s
 
 cdef class qrr(object):
+    """
+    Query Resource Record
+    """
     cdef public str name
+    """
+    @ivar name: Question Name
+    @type name: string
+    """
     cdef public int rrclass
+    """
+    @ivar rrclass: Question Class
+    @type rrclass: int
+    """
     cdef public int rrtype
+    """
+    @ivar rrtype: Question Type
+    @type rrtype: int
+    """
 
     def __repr__(self):
         return '%s %s %s' % (
@@ -291,11 +571,34 @@ cdef class qrr(object):
         )
 
 cdef class rrset(object):
+    """
+    Resource Record Set
+    """
     cdef public str name
+    """
+    @ivar name: Name
+    @type name: string
+    """
     cdef public int rrclass
+    """
+    @ivar rrclass: Class
+    @type rrclass: int
+    """
     cdef public int rrtype
+    """
+    @ivar rrtype: Type
+    @type rrtype: int
+    """
     cdef public unsigned int rrttl
+    """
+    @ivar rrttl: TTL
+    @type rrttl: int
+    """
     cdef public list rdata
+    """
+    @ivar rdata: List of binary resource data
+    @type rdata: list
+    """
 
     def __init__(self):
         self.rdata = []
@@ -313,32 +616,33 @@ cdef class rrset(object):
         return '\n'.join(rr)
 
 cdef class rdata(object):
+    """
+    Resource Data
+    """
     cdef public str data
+    """
+    @ivar data: Binary data
+    @type data: binary string
+    """
     cdef public int rrclass
+    """
+    @ivar rrclass: Class
+    @type rrclass: int
+    """
     cdef public int rrtype
+    """
+    @ivar rrtype: Type
+    @type rrtype: int
+    """
 
     def __init__(self, str data, int rrclass, int rrtype):
+        """
+        __init__(self, data, rrclass, rrtype)
+        """
         self.data = data
         self.rrclass = rrclass
         self.rrtype = rrtype
 
     def __repr__(self):
-        cdef char *dst
-        cdef size_t dstsz
-        cdef uint8_t *rd
-        cdef uint16_t rdlen
-        cdef wdns_res res
+        return rdata_to_str(self.data, self.rrtype, self.rrclass)
 
-        if self.data == None:
-            raise Exception, 'rdata object not initialized'
-
-        rd = <uint8_t *> PyString_AsString(self.data)
-        rdlen = PyString_Size(self.data)
-
-        dst = wdns_rdata_to_str(rd, rdlen, self.rrtype, self.rrclass)
-        if dst == NULL:
-            raise RdataReprException
-
-        s = PyString_FromString(dst)
-        free(dst)
-        return s

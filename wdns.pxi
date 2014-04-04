@@ -7,6 +7,14 @@ from libc.stdlib cimport *
 from libc.string cimport *
 
 cdef extern from "wdns.h":
+    enum:
+        WDNS_LEN_HEADER
+        WDNS_MAXLEN_NAME
+
+        WDNS_PRESLEN_NAME
+        WDNS_PRESLEN_TYPE_A
+        WDNS_PRESLEN_TYPE_AAAA
+
     ctypedef enum wdns_res:
         wdns_res_success
         wdns_res_invalid_compression_pointer
@@ -75,7 +83,7 @@ cdef extern from "wdns.h":
     wdns_res    wdns_str_to_name(char *, wdns_name_t *)
     wdns_res    wdns_parse_message(wdns_message_t *, uint8_t *, size_t)
     void        wdns_clear_message(wdns_message_t *)
-    void        wdns_reverse_name(uint8_t *, size_t, uint8_t *)
+    wdns_res    wdns_reverse_name(uint8_t *, size_t, uint8_t *)
     wdns_res    wdns_len_uname(uint8_t *, uint8_t *, size_t *)
     wdns_res    wdns_left_chop(wdns_name_t *, wdns_name_t *)
     wdns_res    wdns_count_labels(wdns_name_t *, size_t *)
