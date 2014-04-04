@@ -87,6 +87,8 @@ def reverse_name(str name):
     cdef uint8_t rev[WDNS_MAXLEN_NAME]
 
     sz = len_name(name)
+    if sz > WDNS_MAXLEN_NAME:
+        raise NameException, repr(name)
     res = wdns_reverse_name(<uint8_t *> PyString_AsString(name), sz, rev)
     if res != wdns_res_success:
         raise NameException, repr(name)
