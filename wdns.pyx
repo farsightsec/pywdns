@@ -201,8 +201,8 @@ def domain_to_str(str src):
     cdef char dst[WDNS_PRESLEN_NAME]
     cdef size_t sz
 
-    if len(src) >= WDNS_PRESLEN_NAME:
-        raise NameException
+    if len(src) >= WDNS_MAXLEN_NAME:
+        raise NameException, repr(src)
 
     sz = wdns_domain_to_str(<uint8_t *> PyString_AsString(src), len(src), dst)
     return PyString_FromStringAndSize(dst, sz)
