@@ -207,7 +207,10 @@ def domain_to_str(str src):
         raise NameException, repr(src)
 
     sz = wdns_domain_to_str(<uint8_t *> PyString_AsString(src), len(src), dst)
-    return PyString_FromStringAndSize(dst, sz)
+    if sz != len(src):
+        raise NameException, repr(src)
+
+    return PyString_FromString(dst)
 
 def str_to_rrtype(char *src):
     """
