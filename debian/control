@@ -5,10 +5,11 @@ Maintainer: Robert S. Edmonds <edmonds@debian.org>
 Build-Depends:
  debhelper (>= 9~),
  libwdns-dev (>= 0.6.0),
- python-all-dev (>= 2.6.6-3~),
+ python-all-dev (>= 2.7),
  cython (>= 0.15~),
  pkg-config
 Standards-Version: 3.9.5
+X-Python-Version: >= 2.7
 
 Package: python-wdns
 Architecture: any
