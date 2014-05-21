@@ -1,0 +1,20 @@
+Source: pywdns
+Section: python
+Priority: optional
+Maintainer: Robert S. Edmonds <edmonds@debian.org>
+Build-Depends:
+ debhelper (>= 9~),
+ libwdns-dev (>= 0.6.0),
+ python-all-dev (>= 2.6.6-3~),
+ cython (>= 0.15~),
+ pkg-config
+Standards-Version: 3.9.5
+
+Package: python-wdns
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Description: low-level DNS library (Python bindings)
+ wdns is a low-level DNS library. It contains a fast DNS message parser
+ and various utility functions for manipulating wire-format DNS data.
+ .
+ This package contains the Python extension module for libwdns.
