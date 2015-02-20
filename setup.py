@@ -15,8 +15,14 @@ def pkgconfig(*packages, **kw):
             '-L': 'library_dirs',
             '-l': 'libraries'
     }
-    pkg_config_cmd = 'pkg-config --cflags --libs "%s"' % ' '.join(packages)
-    for token in subprocess.check_output(pkg_config_cmd, shell=True).split():
+    pkg_config_cmd = (
+        'pkg-config',
+        '--cflags',
+        '--libs',
+        ' '.join(packages),
+    )
+    pkg_config_output = subprocess.check_output(pkg_config_cmd, universal_newlines=True)
+    for token in pkg_config_output.split():
         flag = token[:2]
         arg = token[2:]
         if flag in flag_map:
