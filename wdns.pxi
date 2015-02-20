@@ -1,5 +1,4 @@
 from libcpp cimport bool
-from cpython.string cimport *
 from libc.stddef cimport *
 from libc.stdint cimport *
 from libc.stdio cimport *
