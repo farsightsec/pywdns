@@ -1,25 +1,25 @@
 """
 Low-level DNS library.  Python bindings.
 
-domain = b'fsi.io'
+domain = 'fsi.io'
 name = str_to_name(domain) -> b'\\x03fsi\\x02io\\x00'
-domain_to_str(name) -> b'fsi.io.'
+domain_to_str(name) -> 'fsi.io.'
 
 rname = reverse_name(name) -> b'\\x02io\\x03fsi\\x00'
 left_chop(name) -> b'\\x02io\\x00'
 count_labels(name) -> 2
 
-is_subdomain(str_to_name(b'www.' + domain), name) -> True
-is_subdomain(name, str_to_name(b'www.' + domain)) -> False
+is_subdomain(str_to_name('www.' + domain), name) -> True
+is_subdomain(name, str_to_name('www.' + domain)) -> False
 
-str_to_rrtype(b'A') -> 1
-opcode_to_str(0) -> b'QUERY'
-rcode_to_str(3) -> b'NXDOMAIN'
+str_to_rrtype('A') -> 1
+opcode_to_str(0) -> 'QUERY'
+rcode_to_str(3) -> 'NXDOMAIN'
 
-rrclass_to_str(1) -> b'IN'
-rrtype_to_str(16) -> b'TXT'
-rdata_to_str('\\x10text record data', wdns.TYPE_TXT, wdns.CLASS_IN) ->
-        b'"text record data"'
+rrclass_to_str(1) -> 'IN'
+rrtype_to_str(16) -> 'TXT'
+rdata_to_str(b'\\x10text record data', wdns.TYPE_TXT, wdns.CLASS_IN) ->
+        '"text record data"'
 """
 
 include "wdns.pxi"
@@ -212,9 +212,9 @@ def domain_to_str(bytes src):
     if sz != len(src):
         raise NameException, repr(src)
 
-    return dst
+    return dst.decode('ascii')
 
-def str_to_rrtype(char *src):
+def str_to_rrtype(str src):
     """
     str_to_rrtype(src)
 
@@ -228,12 +228,12 @@ def str_to_rrtype(char *src):
     @raise Exception: Invalid or unknown rtype string.
     """
     cdef uint16_t res
-    res = wdns_str_to_rrtype(src)
+    res = wdns_str_to_rrtype(src.encode('ascii'))
     if res == 0:
         raise Exception, 'wdns_str_to_rrtype() failed'
     return res
 
-def str_to_name(char *src):
+def str_to_name(str src):
     """
     str_to_name(src)
 
@@ -250,7 +250,7 @@ def str_to_name(char *src):
     cdef wdns_name_t name
     cdef wdns_res res
 
-    res = wdns_str_to_name(src, &name)
+    res = wdns_str_to_name(src.encode('ascii'), &name)
     if res != wdns_res_success:
         raise Exception, 'wdns_str_to_name() failed'
     try:
@@ -273,7 +273,7 @@ def opcode_to_str(uint16_t dns_opcode):
     s = wdns_opcode_to_str(dns_opcode)
     if s == NULL:
         return str(dns_opcode)
-    return s
+    return s.decode('ascii')
 
 def rcode_to_str(uint16_t dns_rcode):
     """
@@ -289,7 +289,7 @@ def rcode_to_str(uint16_t dns_rcode):
     s = wdns_rcode_to_str(dns_rcode)
     if s == NULL:
         return str(dns_rcode)
-    return s
+    return s.decode('ascii')
 
 def rrclass_to_str(uint16_t dns_class):
     """
@@ -305,7 +305,7 @@ def rrclass_to_str(uint16_t dns_class):
     s = wdns_rrclass_to_str(dns_class)
     if s == NULL:
         return str(dns_class)
-    return s
+    return s.decode('ascii')
 
 def rrtype_to_str(uint16_t dns_type):
     """
@@ -321,7 +321,7 @@ def rrtype_to_str(uint16_t dns_type):
     s = wdns_rrtype_to_str(dns_type)
     if s == NULL:
         return 'TYPE' + str(dns_type)
-    return s
+    return s.decode('ascii')
 
 def rdata_to_str(bytes rdata, uint16_t rrtype, uint16_t rrclass):
     """
@@ -350,7 +350,7 @@ def rdata_to_str(bytes rdata, uint16_t rrtype, uint16_t rrclass):
         s = <bytes> dst
     finally:
         free(dst)
-    return s
+    return s.decode('ascii')
 
 def parse_message(bytes pkt):
     """
@@ -620,7 +620,7 @@ cdef class rdata(object):
     """
     Resource Data
     """
-    cdef public str data
+    cdef public bytes data
     """
     @ivar data: Binary data
     @type data: binary string
@@ -636,7 +636,7 @@ cdef class rdata(object):
     @type rrtype: int
     """
 
-    def __init__(self, str data, int rrclass, int rrtype):
+    def __init__(self, bytes data, int rrclass, int rrtype):
         """
         __init__(self, data, rrclass, rrtype)
         """
