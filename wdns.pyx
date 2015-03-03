@@ -347,10 +347,10 @@ def rdata_to_str(bytes rdata, uint16_t rrtype, uint16_t rrclass):
         raise RdataReprException
 
     try:
-        s = <bytes> dst
+        s = str((<bytes> dst).decode('ascii'))
     finally:
         free(dst)
-    return s.decode('ascii')
+    return s
 
 def parse_message(bytes pkt):
     """
