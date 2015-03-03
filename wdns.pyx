@@ -273,7 +273,7 @@ def opcode_to_str(uint16_t dns_opcode):
     s = wdns_opcode_to_str(dns_opcode)
     if s == NULL:
         return str(dns_opcode)
-    return s.decode('ascii')
+    return str(s.decode('ascii'))
 
 def rcode_to_str(uint16_t dns_rcode):
     """
@@ -289,7 +289,7 @@ def rcode_to_str(uint16_t dns_rcode):
     s = wdns_rcode_to_str(dns_rcode)
     if s == NULL:
         return str(dns_rcode)
-    return s.decode('ascii')
+    return str(s.decode('ascii'))
 
 def rrclass_to_str(uint16_t dns_class):
     """
@@ -305,7 +305,7 @@ def rrclass_to_str(uint16_t dns_class):
     s = wdns_rrclass_to_str(dns_class)
     if s == NULL:
         return str(dns_class)
-    return s.decode('ascii')
+    return str(s.decode('ascii'))
 
 def rrtype_to_str(uint16_t dns_type):
     """
@@ -321,7 +321,7 @@ def rrtype_to_str(uint16_t dns_type):
     s = wdns_rrtype_to_str(dns_type)
     if s == NULL:
         return 'TYPE' + str(dns_type)
-    return s.decode('ascii')
+    return str(s.decode('ascii'))
 
 def rdata_to_str(bytes rdata, uint16_t rrtype, uint16_t rrclass):
     """
