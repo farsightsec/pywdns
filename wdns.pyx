@@ -197,7 +197,7 @@ def domain_to_str(bytes src):
     Decodes a wire format domain name.
 
     @param src: A wire format DNS name
-    @type src: string
+    @type src: bytes
 
     @return: Decoded domain name.
     @rtype: string
@@ -212,7 +212,15 @@ def domain_to_str(bytes src):
     if sz != len(src):
         raise NameException, repr(src)
 
-    return dst.decode('ascii')
+    s = dst
+    if isinstance(s, str):
+        # Python 2: 's' is already type 'str', and calling .decode()
+        # would return type 'unicode'. Instead return 's' directly.
+        return s
+    else:
+        # Python 3: 's' is a 'bytes' object, and calling .decode()
+        # will return type 'str'.
+        return s.decode('ascii')
 
 def str_to_rrtype(str src):
     """
@@ -233,7 +241,7 @@ def str_to_rrtype(str src):
         raise Exception, 'wdns_str_to_rrtype() failed'
     return res
 
-def str_to_name(str src):
+def str_to_name(src):
     """
     str_to_name(src)
 
@@ -250,7 +258,12 @@ def str_to_name(str src):
     cdef wdns_name_t name
     cdef wdns_res res
 
-    res = wdns_str_to_name(src.encode('ascii'), &name)
+    if isinstance(src, bytes):
+        # Python 2 or 3: 'src' can be directly passed to libwdns.
+        res = wdns_str_to_name(src, &name)
+    else:
+        # Python 3: bytes != str, so 'src' must be converted first.
+        res = wdns_str_to_name(src.encode('ascii'), &name)
     if res != wdns_res_success:
         raise Exception, 'wdns_str_to_name() failed'
     try:
