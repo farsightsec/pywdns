@@ -2,15 +2,15 @@
 Low-level DNS library.  Python bindings.
 
 domain = 'fsi.io'
-name = str_to_name(domain) -> '\\x03fsi\\x02io\\x00'
+name = str_to_name(domain) -> b'\\x03fsi\\x02io\\x00'
 domain_to_str(name) -> 'fsi.io.'
 
-rname = reverse_name(name) -> '\\x02io\\x03fsi\\x00'
-left_chop(name) -> '\\x02io\\x00'
+rname = reverse_name(name) -> b'\\x02io\\x03fsi\\x00'
+left_chop(name) -> b'\\x02io\\x00'
 count_labels(name) -> 2
 
-is_subdomain(str_to_name('www.%s' % domain), name) -> True
-is_subdomain(name, str_to_name('www.%s' % domain)) -> False
+is_subdomain(str_to_name('www.' + domain), name) -> True
+is_subdomain(name, str_to_name('www.' + domain)) -> False
 
 str_to_rrtype('A') -> 1
 opcode_to_str(0) -> 'QUERY'
@@ -18,8 +18,8 @@ rcode_to_str(3) -> 'NXDOMAIN'
 
 rrclass_to_str(1) -> 'IN'
 rrtype_to_str(16) -> 'TXT'
-rdata_to_str('\\x10text record data', wdns.TYPE_TXT, wdns.CLASS_IN) ->
-        'text record data'
+rdata_to_str(b'\\x10text record data', wdns.TYPE_TXT, wdns.CLASS_IN) ->
+        '"text record data"'
 """
 
 include "wdns.pxi"
@@ -43,7 +43,7 @@ class RdataReprException(Exception):
     rrtype or rrclass fields are incorrect for the binary data.
     """
 
-def len_name(str py_name):
+def len_name(bytes py_name):
     """
     len_name(name) -> len(name)
 
@@ -60,14 +60,14 @@ def len_name(str py_name):
     cdef uint8_t *name_end
     cdef size_t sz
 
-    name = <uint8_t *> PyString_AsString(py_name)
+    name = py_name
     name_end = name + len(py_name)
     res = wdns_len_uname(name, name_end, &sz)
     if res != wdns_res_success:
         raise NameException, repr(py_name)
     return sz
 
-def reverse_name(str name):
+def reverse_name(bytes py_name):
     """
     reverse(name)
 
@@ -83,18 +83,20 @@ def reverse_name(str name):
 
     @raise NameException: If name is malformed.
     """
+    cdef uint8_t *name
     cdef wdns_res res
     cdef uint8_t rev[WDNS_MAXLEN_NAME]
 
-    sz = len_name(name)
+    sz = len_name(py_name)
     if sz > WDNS_MAXLEN_NAME:
-        raise NameException, repr(name)
-    res = wdns_reverse_name(<uint8_t *> PyString_AsString(name), sz, rev)
+        raise NameException, repr(py_name)
+    name = py_name
+    res = wdns_reverse_name(name, sz, rev)
     if res != wdns_res_success:
         raise NameException, repr(name)
-    return PyString_FromStringAndSize(<char *> rev, sz)
+    return name[:sz]
 
-def left_chop(str py_name):
+def left_chop(bytes py_name):
     """
     left_chop(name)
 
@@ -111,7 +113,7 @@ def left_chop(str py_name):
     cdef wdns_res res
     cdef size_t sz
 
-    name.data = <uint8_t *> PyString_AsString(py_name)
+    name.data = py_name
     name.len = len(py_name)
 
     res = wdns_len_uname(name.data, name.data + name.len, &sz)
@@ -121,9 +123,9 @@ def left_chop(str py_name):
     res = wdns_left_chop(&name, &chop)
     if res != wdns_res_success:
         raise NameException, repr(py_name)
-    return PyString_FromStringAndSize(<char *> chop.data, chop.len)
+    return chop.data[:chop.len]
 
-def count_labels(str py_name):
+def count_labels(bytes py_name):
     """
     count_labels(name)
 
@@ -139,7 +141,7 @@ def count_labels(str py_name):
     cdef size_t nlabels
     cdef size_t sz
 
-    name.data = <uint8_t *> PyString_AsString(py_name)
+    name.data = py_name
     name.len = len(py_name)
 
     res = wdns_len_uname(name.data, name.data + name.len, &sz)
@@ -151,7 +153,7 @@ def count_labels(str py_name):
         raise NameException, repr(py_name)
     return nlabels
 
-def is_subdomain(str py_name0, str py_name1):
+def is_subdomain(bytes py_name0, bytes py_name1):
     """
     is_subdomain(a, b)
 
@@ -169,10 +171,10 @@ def is_subdomain(str py_name0, str py_name1):
     cdef wdns_name_t name1
     cdef size_t sz
 
-    name0.data = <uint8_t *> PyString_AsString(py_name0)
+    name0.data = py_name0
     name0.len = len(py_name0)
 
-    name1.data = <uint8_t *> PyString_AsString(py_name1)
+    name1.data = py_name1
     name1.len = len(py_name1)
 
     res = wdns_len_uname(name0.data, name0.data + name0.len, &sz)
@@ -188,14 +190,14 @@ def is_subdomain(str py_name0, str py_name1):
         raise NameException
     return val
 
-def domain_to_str(str src):
+def domain_to_str(bytes src):
     """
     domain_to_str(src)
 
     Decodes a wire format domain name.
 
     @param src: A wire format DNS name
-    @type src: string
+    @type src: bytes
 
     @return: Decoded domain name.
     @rtype: string
@@ -206,13 +208,21 @@ def domain_to_str(str src):
     if len(src) > WDNS_MAXLEN_NAME:
         raise NameException, repr(src)
 
-    sz = wdns_domain_to_str(<uint8_t *> PyString_AsString(src), len(src), dst)
+    sz = wdns_domain_to_str(src, len(src), dst)
     if sz != len(src):
         raise NameException, repr(src)
 
-    return PyString_FromString(dst)
+    s = dst
+    if isinstance(s, str):
+        # Python 2: 's' is already type 'str', and calling .decode()
+        # would return type 'unicode'. Instead return 's' directly.
+        return s
+    else:
+        # Python 3: 's' is a 'bytes' object, and calling .decode()
+        # will return type 'str'.
+        return s.decode('ascii')
 
-def str_to_rrtype(char *src):
+def str_to_rrtype(str src):
     """
     str_to_rrtype(src)
 
@@ -226,12 +236,13 @@ def str_to_rrtype(char *src):
     @raise Exception: Invalid or unknown rtype string.
     """
     cdef uint16_t res
-    res = wdns_str_to_rrtype(src)
+    encoded_src = src.encode('ascii')
+    res = wdns_str_to_rrtype(encoded_src)
     if res == 0:
         raise Exception, 'wdns_str_to_rrtype() failed'
     return res
 
-def str_to_name(char *src):
+def str_to_name(src):
     """
     str_to_name(src)
 
@@ -248,11 +259,19 @@ def str_to_name(char *src):
     cdef wdns_name_t name
     cdef wdns_res res
 
-    res = wdns_str_to_name(src, &name)
+    if isinstance(src, bytes):
+        # Python 2 or 3: 'src' can be directly passed to libwdns.
+        res = wdns_str_to_name(src, &name)
+    else:
+        # Python 3: bytes != str, so 'src' must be converted first.
+        encoded_src = src.encode('ascii')
+        res = wdns_str_to_name(encoded_src, &name)
     if res != wdns_res_success:
         raise Exception, 'wdns_str_to_name() failed'
-    s = PyString_FromStringAndSize(<char *> name.data, name.len)
-    free(name.data)
+    try:
+        s = name.data[:name.len]
+    finally:
+        free(name.data)
     return s
 
 def opcode_to_str(uint16_t dns_opcode):
@@ -265,11 +284,11 @@ def opcode_to_str(uint16_t dns_opcode):
 
     @rtype: string
     """
-    cdef char *s
+    cdef const char *s
     s = wdns_opcode_to_str(dns_opcode)
     if s == NULL:
         return str(dns_opcode)
-    return s
+    return str(s.decode('ascii'))
 
 def rcode_to_str(uint16_t dns_rcode):
     """
@@ -281,11 +300,11 @@ def rcode_to_str(uint16_t dns_rcode):
 
     @rtype: string
     """
-    cdef char *s
+    cdef const char *s
     s = wdns_rcode_to_str(dns_rcode)
     if s == NULL:
         return str(dns_rcode)
-    return s
+    return str(s.decode('ascii'))
 
 def rrclass_to_str(uint16_t dns_class):
     """
@@ -297,11 +316,11 @@ def rrclass_to_str(uint16_t dns_class):
 
     @rtype: string
     """
-    cdef char *s
+    cdef const char *s
     s = wdns_rrclass_to_str(dns_class)
     if s == NULL:
         return str(dns_class)
-    return s
+    return str(s.decode('ascii'))
 
 def rrtype_to_str(uint16_t dns_type):
     """
@@ -313,13 +332,13 @@ def rrtype_to_str(uint16_t dns_type):
 
     @rtype: string
     """
-    cdef char *s
+    cdef const char *s
     s = wdns_rrtype_to_str(dns_type)
     if s == NULL:
         return 'TYPE' + str(dns_type)
-    return s
+    return str(s.decode('ascii'))
 
-def rdata_to_str(str rdata, uint16_t rrtype, uint16_t rrclass):
+def rdata_to_str(bytes rdata, uint16_t rrtype, uint16_t rrclass):
     """
     rdata_to_str(data, rrtype, rrclass)
 
@@ -333,22 +352,19 @@ def rdata_to_str(str rdata, uint16_t rrtype, uint16_t rrclass):
     @rtype: string
     """
     cdef char *dst
-    cdef uint8_t *rd
-    cdef uint16_t rdlen
     cdef wdns_res res
 
     if rdata == None:
         raise Exception, 'rdata object not initialized'
 
-    rd = <uint8_t *> PyString_AsString(rdata)
-    rdlen = PyString_Size(rdata)
-
-    dst = wdns_rdata_to_str(rd, rdlen, rrtype, rrclass)
+    dst = wdns_rdata_to_str(rdata, len(rdata), rrtype, rrclass)
     if dst == NULL:
         raise RdataReprException
 
-    s = PyString_FromString(dst)
-    free(dst)
+    try:
+        s = str((<bytes> dst).decode('ascii'))
+    finally:
+        free(dst)
     return s
 
 def parse_message(bytes pkt):
@@ -368,13 +384,8 @@ def parse_message(bytes pkt):
     cdef wdns_rrset_t *dns_rrset
     cdef wdns_rrset_array_t *a
     cdef wdns_res res
-    cdef uint8_t *p
 
-    p = <uint8_t *> PyString_AsString(pkt)
-    if p == NULL:
-        raise Exception('PyString_AsString() failed')
-
-    res = wdns_parse_message(&m, p, PyString_Size(pkt))
+    res = wdns_parse_message(&m, pkt, len(pkt))
     if res == wdns_res_success:
         msg = message()
         msg.id = m.id
@@ -403,7 +414,7 @@ def parse_message(bytes pkt):
                 dns_rrset = &a.rrsets[j]
                 py_rrset = rrset()
 
-                name = PyString_FromStringAndSize(<char *> dns_rrset[0].name.data, dns_rrset[0].name.len)
+                name = dns_rrset[0].name.data[:dns_rrset[0].name.len]
                 if i == 0:
                     q = qrr()
                     q.name = name
@@ -417,7 +428,7 @@ def parse_message(bytes pkt):
                     py_rrset.rrttl = dns_rrset.rrttl
                     for k from 0 <= k < dns_rrset.n_rdatas:
                         dns_rdata = dns_rrset[0].rdatas[k]
-                        py_rdata = PyString_FromStringAndSize(<char *> dns_rdata.data, dns_rdata.len)
+                        py_rdata = dns_rdata.data[:dns_rdata.len]
                         py_rdata_obj = rdata(py_rdata, dns_rrset.rrclass, dns_rrset.rrtype)
                         py_rrset.rdata.append(py_rdata_obj)
                     msg.sec[i].append(py_rrset)
@@ -552,7 +563,7 @@ cdef class qrr(object):
     """
     Query Resource Record
     """
-    cdef public str name
+    cdef public bytes name
     """
     @ivar name: Question Name
     @type name: string
@@ -579,7 +590,7 @@ cdef class rrset(object):
     """
     Resource Record Set
     """
-    cdef public str name
+    cdef public bytes name
     """
     @ivar name: Name
     @type name: string
@@ -624,7 +635,7 @@ cdef class rdata(object):
     """
     Resource Data
     """
-    cdef public str data
+    cdef public bytes data
     """
     @ivar data: Binary data
     @type data: binary string
@@ -640,7 +651,7 @@ cdef class rdata(object):
     @type rrtype: int
     """
 
-    def __init__(self, str data, int rrclass, int rrtype):
+    def __init__(self, bytes data, int rrclass, int rrtype):
         """
         __init__(self, data, rrclass, rrtype)
         """
