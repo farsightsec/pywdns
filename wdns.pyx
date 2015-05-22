@@ -236,7 +236,8 @@ def str_to_rrtype(str src):
     @raise Exception: Invalid or unknown rtype string.
     """
     cdef uint16_t res
-    res = wdns_str_to_rrtype(src.encode('ascii'))
+    encoded_src = src.encode('ascii')
+    res = wdns_str_to_rrtype(encoded_src)
     if res == 0:
         raise Exception, 'wdns_str_to_rrtype() failed'
     return res
@@ -263,7 +264,8 @@ def str_to_name(src):
         res = wdns_str_to_name(src, &name)
     else:
         # Python 3: bytes != str, so 'src' must be converted first.
-        res = wdns_str_to_name(src.encode('ascii'), &name)
+        encoded_src = src.encode('ascii')
+        res = wdns_str_to_name(encoded_src, &name)
     if res != wdns_res_success:
         raise Exception, 'wdns_str_to_name() failed'
     try:
