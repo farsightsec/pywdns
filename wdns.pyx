@@ -284,7 +284,7 @@ def opcode_to_str(uint16_t dns_opcode):
 
     @rtype: string
     """
-    cdef char *s
+    cdef const char *s
     s = wdns_opcode_to_str(dns_opcode)
     if s == NULL:
         return str(dns_opcode)
@@ -300,7 +300,7 @@ def rcode_to_str(uint16_t dns_rcode):
 
     @rtype: string
     """
-    cdef char *s
+    cdef const char *s
     s = wdns_rcode_to_str(dns_rcode)
     if s == NULL:
         return str(dns_rcode)
@@ -316,7 +316,7 @@ def rrclass_to_str(uint16_t dns_class):
 
     @rtype: string
     """
-    cdef char *s
+    cdef const char *s
     s = wdns_rrclass_to_str(dns_class)
     if s == NULL:
         return str(dns_class)
@@ -332,7 +332,7 @@ def rrtype_to_str(uint16_t dns_type):
 
     @rtype: string
     """
-    cdef char *s
+    cdef const char *s
     s = wdns_rrtype_to_str(dns_type)
     if s == NULL:
         return 'TYPE' + str(dns_type)
