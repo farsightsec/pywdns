@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 NAME = 'pywdns'
-VERSION = '0.6.0'
+VERSION = '0.7.0'
 
 from distutils.core import setup
 from distutils.extension import Extension
@@ -28,7 +28,7 @@ try:
     setup(
         name = NAME,
         version = VERSION,
-        ext_modules = [ Extension('wdns', ['wdns.pyx'], **pkgconfig('libwdns >= 0.6.0')) ],
+        ext_modules = [ Extension('wdns', ['wdns.pyx'], **pkgconfig('libwdns >= 0.7.0')) ],
         cmdclass = {'build_ext': build_ext},
         py_modules = ['wdns_constants'],
 
@@ -39,7 +39,7 @@ except ImportError:
         setup(
             name = NAME,
             version = VERSION,
-            ext_modules = [ Extension('wdns', ['wdns.c'], **pkgconfig('libwdns >= 0.6.0')) ],
+            ext_modules = [ Extension('wdns', ['wdns.c'], **pkgconfig('libwdns >= 0.7.0')) ],
             py_modules = ['wdns_constants'],
         )
     else:

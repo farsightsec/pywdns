@@ -231,6 +231,55 @@ def str_to_rrtype(char *src):
         raise Exception, 'wdns_str_to_rrtype() failed'
     return res
 
+def str_to_rrclass(char *src):
+    """
+    str_to_rrclass(src)
+
+    Returns the numeric rrclass for src.
+    e.g. IN -> 1, CH -> 3
+
+    @type src: string
+
+    @rtype: int
+
+    @raise Exception: Invalid or unknown rtype string.
+    """
+    cdef uint16_t res
+    res = wdns_str_to_rrclass(src)
+    if res == 0:
+        raise Exception, 'wdns_str_to_rrclass() failed'
+    return res
+
+def str_to_rdata(str s, uint16_t rrtype, uint16_t rrclass):
+    """
+    str_to_rdata(s, rrtype, rrclass)
+
+    Converts a string presentation DNS rdata record to wire format.  Requires
+    rrtype and rrclass.
+
+    @type s: string
+    @type rrtype: int
+    @type rrclass: int
+
+    @rtype: string (binary)
+    """
+
+    cdef char *dst
+    cdef wdns_res res
+    cdef uint8_t *rd
+    cdef size_t rdlen
+
+    if s == None:
+        raise TypeError, 's may not be None'
+
+    res = wdns_str_to_rdata(PyString_AsString(s), rrtype, rrclass, &rd, &rdlen)
+    if res != wdns_res_success:
+        raise Exception, 'wdns_str_to_rdata() failed'
+
+    rdata = PyString_FromStringAndSize(<char *>rd, rdlen)
+    free(rd)
+    return rdata
+
 def str_to_name(char *src):
     """
     str_to_name(src)
