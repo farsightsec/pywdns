@@ -250,6 +250,26 @@ def str_to_rrclass(char *src):
         raise Exception, 'wdns_str_to_rrclass() failed'
     return res
 
+def str_to_rcode(char *src):
+    """
+    str_to_rcode(src)
+
+    Returns the numeric rcode for src.
+    e.g. NOERROR -> 1, NXDOMAIN -> 3
+
+    @type src: string
+
+    @rtype: int
+
+    @raise Exception: Invalid or unknown rtype string.
+    """
+    cdef uint16_t rval
+    cdef wdns_res res
+    res = wdns_str_to_rcode(src, &rval)
+    if res != wdns_res_success:
+        raise Exception, 'wdns_str_to_rcode() failed: %s' % wdns_res_to_str(res)
+    return rval
+
 def str_to_rdata(str s, uint16_t rrtype, uint16_t rrclass):
     """
     str_to_rdata(s, rrtype, rrclass)

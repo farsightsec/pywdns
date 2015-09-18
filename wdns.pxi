@@ -79,6 +79,7 @@ cdef extern from "wdns.h":
     char *      wdns_rrtype_to_str(uint16_t)
     char *      wdns_rdata_to_str(uint8_t *, uint16_t, uint16_t, uint16_t)
     size_t      wdns_domain_to_str(uint8_t *, size_t, char *)
+    wdns_res    wdns_str_to_rcode(char *, uint16_t *)
     uint16_t    wdns_str_to_rrtype(char *)
     uint16_t    wdns_str_to_rrclass(char *)
     wdns_res    wdns_str_to_rdata(char *, uint16_t, uint16_t, uint8_t **, size_t *)
@@ -90,3 +91,5 @@ cdef extern from "wdns.h":
     wdns_res    wdns_left_chop(wdns_name_t *, wdns_name_t *)
     wdns_res    wdns_count_labels(wdns_name_t *, size_t *)
     wdns_res    wdns_is_subdomain(wdns_name_t *, wdns_name_t *, bool *)
+
+    char *      wdns_res_to_str(wdns_res res)
