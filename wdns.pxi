@@ -84,6 +84,7 @@ cdef extern from "wdns.h":
     uint16_t    wdns_str_to_rrclass(char *)
     wdns_res    wdns_str_to_rdata(char *, uint16_t, uint16_t, uint8_t **, size_t *)
     wdns_res    wdns_str_to_name(char *, wdns_name_t *)
+    wdns_res    wdns_str_to_name_case(char *, wdns_name_t *)
     wdns_res    wdns_parse_message(wdns_message_t *, uint8_t *, size_t)
     void        wdns_clear_message(wdns_message_t *)
     wdns_res    wdns_reverse_name(uint8_t *, size_t, uint8_t *)
