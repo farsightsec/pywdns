@@ -3,17 +3,17 @@ Section: python
 Priority: optional
 Maintainer: Farsight Security, Inc. <software@farsightsecurity.com>
 Build-Depends:
+ cython (>= 0.15~),
  debhelper (>= 9~),
  libwdns-dev (>= 0.6.0),
+ pkg-config,
  python-all-dev (>= 2.7),
- cython (>= 0.15~),
- pkg-config
 Standards-Version: 3.9.6
 X-Python-Version: >= 2.7
 
 Package: python-wdns
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Depends: ${misc:Depends}, ${python:Depends}, ${shlibs:Depends}
 Description: low-level DNS library (Python bindings)
  wdns is a low-level DNS library. It contains a fast DNS message parser
  and various utility functions for manipulating wire-format DNS data.
