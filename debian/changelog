@@ -1,3 +1,15 @@
+pywdns (0.8.0-1) debian-farsightsec; urgency=medium
+
+  * New upstream release.
+  * [b125f15f] debian/gbp.conf: Update for debian -> next merge
+  * [04e3e809] debian/control: Update Maintainer
+  * [221726c4] debian/control: Update Standards-Version
+  * [d8277b4e] debian/: Run "wrap-and-sort -sbt"
+  * [9ee91a28] debian/control: Bump minimum required libwdns-dev version to 0.8.0
+  * [49226554] debian/copyright: 2015
+
+ -- Robert Edmonds <edmonds@fsi.io>  Mon, 19 Oct 2015 16:20:47 -0400
+
 pywdns (0.6.0-1) unstable; urgency=medium
 
   * Current release.
