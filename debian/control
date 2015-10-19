@@ -1,7 +1,7 @@
 Source: pywdns
 Section: python
 Priority: optional
-Maintainer: Robert S. Edmonds <edmonds@debian.org>
+Maintainer: Farsight Security, Inc. <software@farsightsecurity.com>
 Build-Depends:
  debhelper (>= 9~),
  libwdns-dev (>= 0.6.0),
