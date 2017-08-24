@@ -757,6 +757,7 @@ cdef class rdata(object):
 
 cdef class edns(object):
     """
+    EDNS Data
     """
     cdef public int version
     """
