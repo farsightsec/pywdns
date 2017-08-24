@@ -515,6 +515,11 @@ def parse_message(bytes pkt):
                         py_rrset.rdata.append(py_rdata_obj)
                     msg.sec[i].append(py_rrset)
 
+        if m.edns.present:
+            opts = None
+            if m.edns.options:
+                opts = PyString_FromStringAndSize(<char *>m.edns.options.data, m.edns.options.len)
+            msg.edns = edns(m.edns.version, m.edns.flags, m.edns.size, opts)
         wdns_clear_message(&m)
         return msg
     else:
@@ -548,6 +553,11 @@ cdef class message(object):
     """
     @ivar sec: Sections
     @type sec: list
+    """
+    cdef public object edns
+    """
+    @ivar edns: EDNS information
+    @type edns: edns
     """
 
     cdef public bool qr
@@ -590,6 +600,7 @@ cdef class message(object):
 
     def __init__(self):
         self.sec = [ [], [], [], [] ]
+        self.edns = None
 
     def repr_flags(self):
         f = []
@@ -744,3 +755,36 @@ cdef class rdata(object):
     def __repr__(self):
         return rdata_to_str(self.data, self.rrtype, self.rrclass)
 
+cdef class edns(object):
+    """
+    EDNS Data
+    """
+    cdef public int version
+    """
+    @ivar version: EDNS version
+    @type version: int
+    """
+    cdef public int flags
+    """
+    @ivar flags: EDNS Flags
+    @type flags: int
+    """
+    cdef public int size
+    """
+    @ivar size: Maximum message size
+    @type size: int
+    """
+    cdef public str options
+    """
+    @ivar options: OPT RR contents
+    @type options: str
+    """
+
+    def __init__(self, version, flags, size, options):
+        self.version = version
+        self.flags = flags
+        self.size = size
+        self.options = options
+
+    def __repr__(self):
+        return ";; EDNS{} SIZE: {}, FLAGS: {:x}".format(self.version, self.size, self.flags)
