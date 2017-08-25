@@ -5,7 +5,7 @@ Maintainer: Farsight Security, Inc. <software@farsightsecurity.com>
 Build-Depends:
  cython (>= 0.15~),
  debhelper (>= 9~),
- libwdns-dev (>= 0.8.0~),
+ libwdns-dev (>= 0.9.0~),
  pkg-config,
  python-all-dev (>= 2.7),
 Standards-Version: 3.9.6
