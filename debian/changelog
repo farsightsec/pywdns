@@ -1,3 +1,12 @@
+pywdns (0.9.0-1) debian-farsightsec; urgency=medium
+
+  * New release.
+  * debian/control: Bump minimum required libwdns-dev version to 0.9.0
+  * Store EDNS information in message object.
+  * Update wdns_constants.
+
+ -- Farsight Security, Inc. <software@fsi.io>  Fri, 25 Aug 2017 19:44:02 +0000
+
 pywdns (0.8.0-1) debian-farsightsec; urgency=medium
 
   * New upstream release.
