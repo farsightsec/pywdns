@@ -1,5 +1,4 @@
 from libcpp cimport bool
-from cpython.string cimport *
 from libc.stddef cimport *
 from libc.stdint cimport *
 from libc.stdio cimport *
@@ -73,10 +72,10 @@ cdef extern from "wdns.h":
         uint16_t            flags
         uint16_t            rcode
 
-    char *      wdns_opcode_to_str(uint16_t)
-    char *      wdns_rcode_to_str(uint16_t)
-    char *      wdns_rrclass_to_str(uint16_t)
-    char *      wdns_rrtype_to_str(uint16_t)
+    const char *      wdns_opcode_to_str(uint16_t)
+    const char *      wdns_rcode_to_str(uint16_t)
+    const char *      wdns_rrclass_to_str(uint16_t)
+    const char *      wdns_rrtype_to_str(uint16_t)
     char *      wdns_rdata_to_str(uint8_t *, uint16_t, uint16_t, uint16_t)
     size_t      wdns_domain_to_str(uint8_t *, size_t, char *)
     wdns_res    wdns_str_to_rcode(char *, uint16_t *)
@@ -93,4 +92,4 @@ cdef extern from "wdns.h":
     wdns_res    wdns_count_labels(wdns_name_t *, size_t *)
     wdns_res    wdns_is_subdomain(wdns_name_t *, wdns_name_t *, bool *)
 
-    char *      wdns_res_to_str(wdns_res res)
+    const char *      wdns_res_to_str(wdns_res res)
