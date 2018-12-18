@@ -258,7 +258,7 @@ def str_to_rrtype(str src):
         raise Exception, 'wdns_str_to_rrtype() failed'
     return res
 
-def str_to_rrclass(char *src):
+def str_to_rrclass(str src):
     """
     str_to_rrclass(src)
 
@@ -272,12 +272,13 @@ def str_to_rrclass(char *src):
     @raise Exception: Invalid or unknown rtype string.
     """
     cdef uint16_t res
-    res = wdns_str_to_rrclass(src)
+    encoded_src = src.encode('ascii')
+    res = wdns_str_to_rrclass(encoded_src)
     if res == 0:
         raise Exception, 'wdns_str_to_rrclass() failed'
     return res
 
-def str_to_rcode(char *src):
+def str_to_rcode(str src):
     """
     str_to_rcode(src)
 
@@ -292,12 +293,13 @@ def str_to_rcode(char *src):
     """
     cdef uint16_t rval
     cdef wdns_res res
-    res = wdns_str_to_rcode(src, &rval)
+    encoded_src = src.encode('ascii')
+    res = wdns_str_to_rcode(encoded_src, &rval)
     if res != wdns_res_success:
         raise Exception, 'wdns_str_to_rcode() failed: %s' % wdns_res_to_str(res)
     return rval
 
-def str_to_rdata(char *s, uint16_t rrtype, uint16_t rrclass):
+def str_to_rdata(str s, uint16_t rrtype, uint16_t rrclass):
     """
     str_to_rdata(s, rrtype, rrclass)
 
@@ -319,12 +321,12 @@ def str_to_rdata(char *s, uint16_t rrtype, uint16_t rrclass):
     if s == None:
         raise TypeError, 's may not be None'
 
-    res = wdns_str_to_rdata(s, rrtype, rrclass, &rd, &rdlen)
+    encoded_src = s.encode('ascii')
+    res = wdns_str_to_rdata(encoded_src, rrtype, rrclass, &rd, &rdlen)
     if res != wdns_res_success:
         raise Exception, 'wdns_str_to_rdata() failed'
 
-    print(rd)
-    rdata = rd[:len(rd)]
+    rdata = rd[:rdlen]
     free(rd)
     return rdata
 
@@ -355,12 +357,12 @@ def str_to_name(src):
     if res != wdns_res_success:
         raise Exception, 'wdns_str_to_name() failed'
     try:
-        s = name.data[:len(name)]
+        s = name.data[:name.len]
     finally:
         free(name.data)
     return s
 
-def str_to_name_case(char *src):
+def str_to_name_case(str src):
     """
     str_to_name_case(src)
 
@@ -376,8 +378,8 @@ def str_to_name_case(char *src):
     """
     cdef wdns_name_t name
     cdef wdns_res res
-
-    res = wdns_str_to_name_case(src, &name)
+    encoded_str = src.encode('ascii')
+    res = wdns_str_to_name_case(encoded_str, &name)
     if res != wdns_res_success:
         raise Exception, 'wdns_str_to_name() failed'
     s = name.data[:name.len]
