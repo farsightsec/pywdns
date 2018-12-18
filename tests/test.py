@@ -19,7 +19,7 @@ from wdns import *
 
 
 class TestWDNS(unittest.TestCase):
-    def test_wdns(self):
+    def test_domain_manipulation(self):
         domain = 'fsi.io'
         name = str_to_name(domain)
         assert name == b'\x03fsi\x02io\x00'
@@ -30,13 +30,27 @@ class TestWDNS(unittest.TestCase):
         assert count_labels(name) == 2
         assert is_subdomain(str_to_name('www.' + domain), name) is True
         assert is_subdomain(name, str_to_name('www.' + domain)) is False
-        assert str_to_rrtype('A') == 1
-        assert opcode_to_str(0) == 'QUERY'
-        assert rcode_to_str(3) == 'NXDOMAIN'
-        assert rrclass_to_str(1) == 'IN'
-        assert rrtype_to_str(16) == 'TXT'
-        assert rdata_to_str(b'\x10text record data', TYPE_TXT, CLASS_IN) == '"text record data"'
 
+    def test_opcode_conversions(self):
+        assert str_to_rrtype('A') == 1
+        assert rrtype_to_str(16) == 'TXT'
+
+        assert opcode_to_str(0) == 'QUERY'
+
+        assert rcode_to_str(3) == 'NXDOMAIN'
+        assert str_to_rcode('NXDOMAIN') == 3
+
+        assert rrclass_to_str(1) == 'IN'
+        assert str_to_rrclass('IN') == 1
+
+    def test_txt_record_creation(self):
+        assert rdata_to_str(b'\x10text record data', TYPE_TXT, CLASS_IN) == '"text record data"'
+        assert str_to_rdata('"text record data"', TYPE_TXT, CLASS_IN) == '\x10text record data\xe9\xb7\xfaQ\x7f'
+
+    def test_str_to_name_case(self):
+        domain = 'FsI.iO'
+        name = str_to_name_case(domain)
+        assert name == '\x03FsI\x02iO\x00'
 
 if __name__ == '__main__':
     unittest.main()

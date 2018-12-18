@@ -15,7 +15,12 @@
 # limitations under the License.
 
 NAME = 'pywdns'
-VERSION = '0.6.0'
+VERSION = '0.9.0'
+LICENSE = 'Apache License 2.0'
+DESCRIPTION = 'Python extension module for the wdns C library'
+URL = 'https://github.com/farsightsec/pywdns'
+AUTHOR = 'Farsight Security, Inc.'
+AUTHOR_EMAIL = 'software@farsightsecurity.com'
 
 from distutils.core import setup
 from distutils.extension import Extension
@@ -48,7 +53,12 @@ try:
     setup(
         name = NAME,
         version = VERSION,
-        ext_modules = [ Extension('wdns', ['wdns.pyx'], **pkgconfig('libwdns >= 0.6.0')) ],
+        license = LICENSE,
+        description = DESCRIPTION,
+        url = URL,
+        author = AUTHOR,
+        author_email = AUTHOR_EMAIL,
+        ext_modules = [ Extension('wdns', ['wdns.pyx'], **pkgconfig('libwdns >= 0.9.0')) ],
         cmdclass = {'build_ext': build_ext},
         py_modules = ['wdns_constants'],
 
@@ -59,7 +69,12 @@ except ImportError:
         setup(
             name = NAME,
             version = VERSION,
-            ext_modules = [ Extension('wdns', ['wdns.c'], **pkgconfig('libwdns >= 0.6.0')) ],
+            license = LICENSE,
+            description = DESCRIPTION,
+            url = URL,
+            author = AUTHOR,
+            author_email = AUTHOR_EMAIL,
+            ext_modules = [ Extension('wdns', ['wdns.c'], **pkgconfig('libwdns >= 0.9.0')) ],
             py_modules = ['wdns_constants'],
         )
     else:
