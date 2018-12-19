@@ -386,6 +386,30 @@ def str_to_name_case(str src):
     free(name.data)
     return s
 
+def str_to_name_case(str src):
+    """
+    str_to_name_case(src)
+
+    Encodes a wire format domain name, preserving case.
+
+    @type src: string
+
+    @return: Wire-format domain name.
+    @rtype: string
+
+    @except Exception: Name longer than WDNS_MAXLEN_NAME or memory
+    allocation error.
+    """
+    cdef wdns_name_t name
+    cdef wdns_res res
+    encoded_str = src.encode('ascii')
+    res = wdns_str_to_name_case(encoded_str, &name)
+    if res != wdns_res_success:
+        raise Exception, 'wdns_str_to_name() failed'
+    s = name.data[:name.len]
+    free(name.data)
+    return s
+
 def opcode_to_str(uint16_t dns_opcode):
     """
     opcode_to_str(dns_opcode)
