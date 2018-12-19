@@ -1,3 +1,19 @@
+# cython: language_level=2
+
+# Copyright (c) 2009-2014 by Farsight Security, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """
 Low-level DNS library.  Python bindings.
 
@@ -94,7 +110,7 @@ def reverse_name(bytes py_name):
     res = wdns_reverse_name(name, sz, rev)
     if res != wdns_res_success:
         raise NameException, repr(name)
-    return name[:sz]
+    return rev[:sz]
 
 def left_chop(bytes py_name):
     """
@@ -242,6 +258,78 @@ def str_to_rrtype(str src):
         raise Exception, 'wdns_str_to_rrtype() failed'
     return res
 
+def str_to_rrclass(str src):
+    """
+    str_to_rrclass(src)
+
+    Returns the numeric rrclass for src.
+    e.g. IN -> 1, CH -> 3
+
+    @type src: string
+
+    @rtype: int
+
+    @raise Exception: Invalid or unknown rtype string.
+    """
+    cdef uint16_t res
+    encoded_src = src.encode('ascii')
+    res = wdns_str_to_rrclass(encoded_src)
+    if res == 0:
+        raise Exception, 'wdns_str_to_rrclass() failed'
+    return res
+
+def str_to_rcode(str src):
+    """
+    str_to_rcode(src)
+
+    Returns the numeric rcode for src.
+    e.g. NOERROR -> 1, NXDOMAIN -> 3
+
+    @type src: string
+
+    @rtype: int
+
+    @raise Exception: Invalid or unknown rtype string.
+    """
+    cdef uint16_t rval
+    cdef wdns_res res
+    encoded_src = src.encode('ascii')
+    res = wdns_str_to_rcode(encoded_src, &rval)
+    if res != wdns_res_success:
+        raise Exception, 'wdns_str_to_rcode() failed: %s' % wdns_res_to_str(res)
+    return rval
+
+def str_to_rdata(str s, uint16_t rrtype, uint16_t rrclass):
+    """
+    str_to_rdata(s, rrtype, rrclass)
+
+    Converts a string presentation DNS rdata record to wire format.  Requires
+    rrtype and rrclass.
+
+    @type s: string
+    @type rrtype: int
+    @type rrclass: int
+
+    @rtype: string (binary)
+    """
+
+    cdef char *dst
+    cdef wdns_res res
+    cdef uint8_t *rd
+    cdef size_t rdlen
+
+    if s == None:
+        raise TypeError, 's may not be None'
+
+    encoded_src = s.encode('ascii')
+    res = wdns_str_to_rdata(encoded_src, rrtype, rrclass, &rd, &rdlen)
+    if res != wdns_res_success:
+        raise Exception, 'wdns_str_to_rdata() failed'
+
+    rdata = rd[:rdlen]
+    free(rd)
+    return rdata
+
 def str_to_name(src):
     """
     str_to_name(src)
@@ -272,6 +360,30 @@ def str_to_name(src):
         s = name.data[:name.len]
     finally:
         free(name.data)
+    return s
+
+def str_to_name_case(str src):
+    """
+    str_to_name_case(src)
+
+    Encodes a wire format domain name, preserving case.
+
+    @type src: string
+
+    @return: Wire-format domain name.
+    @rtype: string
+
+    @except Exception: Name longer than WDNS_MAXLEN_NAME or memory
+    allocation error.
+    """
+    cdef wdns_name_t name
+    cdef wdns_res res
+    encoded_str = src.encode('ascii')
+    res = wdns_str_to_name_case(encoded_str, &name)
+    if res != wdns_res_success:
+        raise Exception, 'wdns_str_to_name() failed'
+    s = name.data[:name.len]
+    free(name.data)
     return s
 
 def opcode_to_str(uint16_t dns_opcode):
@@ -433,6 +545,11 @@ def parse_message(bytes pkt):
                         py_rrset.rdata.append(py_rdata_obj)
                     msg.sec[i].append(py_rrset)
 
+        if m.edns.present:
+            opts = None
+            if m.edns.options:
+                opts = m.edns.options.data[:m.edns.options.len]
+            msg.edns = edns(m.edns.version, m.edns.flags, m.edns.size, opts)
         wdns_clear_message(&m)
         return msg
     else:
@@ -466,6 +583,11 @@ cdef class message(object):
     """
     @ivar sec: Sections
     @type sec: list
+    """
+    cdef public object edns
+    """
+    @ivar edns: EDNS information
+    @type edns: edns
     """
 
     cdef public bool qr
@@ -508,6 +630,7 @@ cdef class message(object):
 
     def __init__(self):
         self.sec = [ [], [], [], [] ]
+        self.edns = None
 
     def repr_flags(self):
         f = []
@@ -662,3 +785,36 @@ cdef class rdata(object):
     def __repr__(self):
         return rdata_to_str(self.data, self.rrtype, self.rrclass)
 
+cdef class edns(object):
+    """
+    EDNS Data
+    """
+    cdef public int version
+    """
+    @ivar version: EDNS version
+    @type version: int
+    """
+    cdef public int flags
+    """
+    @ivar flags: EDNS Flags
+    @type flags: int
+    """
+    cdef public int size
+    """
+    @ivar size: Maximum message size
+    @type size: int
+    """
+    cdef public str options
+    """
+    @ivar options: OPT RR contents
+    @type options: str
+    """
+
+    def __init__(self, version, flags, size, options):
+        self.version = version
+        self.flags = flags
+        self.size = size
+        self.options = options
+
+    def __repr__(self):
+        return ";; EDNS{} SIZE: {}, FLAGS: {:x}".format(self.version, self.size, self.flags)
