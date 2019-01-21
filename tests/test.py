@@ -62,18 +62,24 @@ class TestWDNS(unittest.TestCase):
 
     def test_parse_pkt_query(self):
         a = '1bb00100000100000000000006676f6f676c6503636f6d0000010001'
-        b = bytes.fromhex(a)
-        c = wdns.parse_message(b)
+        try:
+            b = bytes.fromhex(a)
+        except:
+            b = a.decode('hex')
+        c = parse_message(b)
         assert c.qr is False
-        assert c.sec[0][0] == 'google.com. IN A'
+        assert str(c.sec[0][0]) == 'google.com. IN A', c.sec[0][0]
 
     def test_parse_pkt_response(self):
-        a = '1b b0 81 80 00 01 00 01 00 00 00 00 06 67 6f 6f 67 6c 65 03 63 6f 6d 00 00 01 00 01 c0 0c 00 01 00 01 00 00 01 2b 00 04 ac d9 03 6e'
-        b = bytes.fromhex(a)
-        c = wdns.parse_message(b)
+        a = '1bb08180000100010000000006676f6f676c6503636f6d0000010001c00c000100010000012b0004acd9036e'
+        try:
+            b = bytes.fromhex(a)
+        except:
+            b = a.decode('hex')
+        c = parse_message(b)
         assert c.qr is True
-        assert d.sec[0][0] == 'google.com. IN A'
-        assert d.sec[1][0] == 'google.com. 299 IN A 172.217.3.110'
+        assert str(c.sec[0][0]) == 'google.com. IN A', c.sec[0][0]
+        assert str(c.sec[1][0]) == 'google.com. 299 IN A 172.217.3.110', c.sec[1][0]
 
 
 if __name__ == '__main__':

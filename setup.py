@@ -15,7 +15,7 @@
 # limitations under the License.
 
 NAME = 'pywdns'
-VERSION = '1.0.0'
+VERSION = '0.9.0'
 LICENSE = 'Apache License 2.0'
 DESCRIPTION = 'Python extension module for the wdns C library'
 URL = 'https://github.com/farsightsec/pywdns'
@@ -61,7 +61,7 @@ class Test(Command):
 
     def run(self):
         unittest.TextTestRunner(verbosity=1).run(
-            unittest.TestLoader().discover('.'))
+            unittest.TestLoader().discover('tests'))
 
 
 from Cython.Distutils import build_ext

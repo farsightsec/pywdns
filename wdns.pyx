@@ -368,7 +368,7 @@ def str_to_name(src):
     """
     cdef wdns_name_t name
     cdef wdns_res res
-    cdef bytearray s
+    cdef bytes s
 
     if isinstance(src, bytes):
         # Python 2 or 3: 'src' can be directly passed to libwdns.
@@ -393,7 +393,7 @@ def str_to_name_case(str src):
 
     @type src: string
 
-    @return: Wire-format domain name as a bytearray.
+    @return: Wire-format domain name.
     @rtype: string
 
     @except Exception: Name longer than WDNS_MAXLEN_NAME or memory
@@ -403,7 +403,7 @@ def str_to_name_case(str src):
     """
     cdef wdns_name_t name
     cdef wdns_res res
-    cdef bytearray s
+    cdef bytes s
 
     encoded_str = src.encode('ascii')
     res = wdns_str_to_name_case(encoded_str, &name)
