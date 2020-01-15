@@ -1,4 +1,4 @@
-pywdns (1.0.0) debian-farsightsec; urgency=medium
+pywdns (1.0.0-1) debian-farsightsec; urgency=medium
 
   * Python 3 compat.
   * added unit tests
