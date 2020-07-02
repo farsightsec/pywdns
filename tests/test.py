@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # Copyright (c) 2009-2014 by Farsight Security, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,10 +14,33 @@
 # limitations under the License.
 
 import unittest
-from wdns import *
+
+from wdns import (
+    CLASS_IN,
+    count_labels,
+    domain_to_str,
+    is_subdomain,
+    left_chop,
+    len_name,
+    opcode_to_str,
+    parse_message,
+    rcode_to_str,
+    rdata_to_str,
+    reverse_name,
+    rrclass_to_str,
+    rrtype_to_str,
+    str_to_name,
+    str_to_name_case,
+    str_to_rcode,
+    str_to_rdata,
+    str_to_rrclass,
+    str_to_rrtype,
+    TYPE_TXT,
+)
 
 
 class TestWDNS(unittest.TestCase):
+
     def test_domain_manipulation(self):
         domain = 'fsi.io'
         name = str_to_name(domain)
@@ -45,9 +67,12 @@ class TestWDNS(unittest.TestCase):
         assert str_to_rrclass('IN') == 1, str_to_rrclass('IN')
 
     def test_txt_record_creation(self):
-        assert rdata_to_str(b'\x10text record data', TYPE_TXT, CLASS_IN) == '"text record data"', \
-            rdata_to_str(b'\x10text record data', TYPE_TXT, CLASS_IN)
-        assert str_to_rdata('"text record data"', TYPE_TXT, CLASS_IN) == b'\x10text record data',\
+        assert rdata_to_str(
+            b'\x10text record data', TYPE_TXT, CLASS_IN) == \
+            '"text record data"', rdata_to_str(
+                b'\x10text record data', TYPE_TXT, CLASS_IN)
+        assert str_to_rdata('"text record data"', TYPE_TXT, CLASS_IN) == \
+            b'\x10text record data',\
             str_to_rdata('"text record data"', TYPE_TXT, CLASS_IN)
 
     def test_str_to_name_case(self):
@@ -71,7 +96,8 @@ class TestWDNS(unittest.TestCase):
         assert str(c.sec[0][0]) == 'google.com. IN A', c.sec[0][0]
 
     def test_parse_pkt_response(self):
-        a = '1bb08180000100010000000006676f6f676c6503636f6d0000010001c00c000100010000012b0004acd9036e'
+        a = ('1bb08180000100010000000006676f6f676c6503636f6d0000010001c00c0001'
+             '00010000012b0004acd9036e')
         try:
             b = bytes.fromhex(a)
         except:
@@ -79,7 +105,8 @@ class TestWDNS(unittest.TestCase):
         c = parse_message(b)
         assert c.qr is True
         assert str(c.sec[0][0]) == 'google.com. IN A', c.sec[0][0]
-        assert str(c.sec[1][0]) == 'google.com. 299 IN A 172.217.3.110', c.sec[1][0]
+        assert str(c.sec[1][0]) == 'google.com. 299 IN A 172.217.3.110', \
+                                    c.sec[1][0]
 
 
 if __name__ == '__main__':
