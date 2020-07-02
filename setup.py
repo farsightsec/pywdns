@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-
-# Copyright (c) 2009-2014 by Farsight Security, Inc.
+# Copyright (c) 2009-2015, 2017, 2019-2020 by Farsight Security, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +21,7 @@ import unittest
 
 
 NAME = 'pywdns'
-VERSION = '0.9.0'
+VERSION = '0.10.0'
 LICENSE = 'Apache License 2.0'
 DESCRIPTION = 'Python extension module for the wdns C library'
 URL = 'https://github.com/farsightsec/pywdns'

@@ -1,6 +1,4 @@
 #!/usr/bin/make -f
 
-PYBUILD_NAME=wdns
-
 %:
 	dh $@ --with python2,python3 --buildsystem=pybuild
