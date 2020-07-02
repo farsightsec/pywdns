@@ -1,3 +1,10 @@
+pywdns (0.10.0-1) debian-farsightsec; urgency=medium
+
+  * Python3 compatibility.
+  * Add unit tests.
+
+ -- Farsight Security, Inc. <software@farsightsecurity.com>  Thu, 02 Jul 2020 19:47:49 +0000
+
 pywdns (0.9.0-1) debian-farsightsec; urgency=medium
 
   * New release.
