@@ -28,7 +28,18 @@ AUTHOR = 'Farsight Security, Inc.'
 AUTHOR_EMAIL = 'software@farsightsecurity.com'
 
 
-subprocess.check_call('./gen_pywdns_constants')
+class GenConstants(Command):
+
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        subprocess.check_call('./gen_pywdns_constants')
 
 
 def pkgconfig(*packages, **kw):
@@ -80,6 +91,10 @@ setup(
         Extension('wdns', ['wdns.pyx'],
                   **pkgconfig('libwdns >= 0.9.0'))
     ],
-    cmdclass={'build_ext': build_ext, 'test': Test},
+    cmdclass={
+        'build_ext': build_ext,
+        'test': Test,
+        'gen_constants': GenConstants,
+    },
     py_modules=['wdns_constants'],
 )
