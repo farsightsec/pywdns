@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# Copyright (c) 2009-2015, 2017, 2019-2020 by Farsight Security, Inc.
+# Copyright (c) 2009-2015, 2017, 2019-2021 by Farsight Security, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +20,7 @@ import unittest
 
 
 NAME = 'pywdns'
-VERSION = '0.10.0'
+VERSION = '0.10.1'
 LICENSE = 'Apache License 2.0'
 DESCRIPTION = 'Python extension module for the wdns C library'
 URL = 'https://github.com/farsightsec/pywdns'
@@ -29,7 +28,18 @@ AUTHOR = 'Farsight Security, Inc.'
 AUTHOR_EMAIL = 'software@farsightsecurity.com'
 
 
-subprocess.check_call('./gen_pywdns_constants')
+class GenConstants(Command):
+
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        subprocess.check_call('./gen_pywdns_constants')
 
 
 def pkgconfig(*packages, **kw):
@@ -81,6 +91,10 @@ setup(
         Extension('wdns', ['wdns.pyx'],
                   **pkgconfig('libwdns >= 0.9.0'))
     ],
-    cmdclass={'build_ext': build_ext, 'test': Test},
+    cmdclass={
+        'build_ext': build_ext,
+        'test': Test,
+        'gen_constants': GenConstants,
+    },
     py_modules=['wdns_constants'],
 )
