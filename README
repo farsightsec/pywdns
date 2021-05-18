@@ -15,3 +15,7 @@ the Cython-generated code and do not require Cython to actually be installed.
 `pywdns` is built by running `setup.py`:
 
     python setup.py build
+
+To update for newer wdns.h header, run:
+
+    python setup.py gen_constants

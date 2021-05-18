@@ -1,3 +1,10 @@
+pywdns (0.10.1-1) debian-fsi; urgency=medium
+
+  * Remove references to python2.
+  * Add a gen_constants command.
+
+ -- Farsight Security, Inc. <software@farsightsecurity.com>  Tue, 18 May 2021 18:36:43 +0000
+
 pywdns (0.10.0-1) debian-farsightsec; urgency=medium
 
   * Python3 compatibility.
