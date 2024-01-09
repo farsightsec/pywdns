@@ -845,10 +845,10 @@ cdef class edns(object):
     @ivar size: Maximum message size
     @type size: int
     """
-    cdef public str options
+    cdef public bytes options
     """
     @ivar options: OPT RR contents
-    @type options: str
+    @type options: bytes
     """
 
     def __init__(self, version, flags, size, options):
