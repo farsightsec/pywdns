@@ -181,7 +181,7 @@ def is_subdomain(bytes py_name0, bytes py_name1):
     """
     is_subdomain(a, b)
 
-    Returns whether or not b is a subdomain of a.
+    Returns whether or not a is a subdomain of b.
 
     @param a: A wire format DNS name
     @type a: string
