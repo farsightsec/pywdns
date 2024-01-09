@@ -181,7 +181,7 @@ def is_subdomain(bytes py_name0, bytes py_name1):
     """
     is_subdomain(a, b)
 
-    Returns whether or not b is a subdomain of a.
+    Returns whether or not a is a subdomain of b.
 
     @param a: A wire format DNS name
     @type a: string
@@ -845,10 +845,10 @@ cdef class edns(object):
     @ivar size: Maximum message size
     @type size: int
     """
-    cdef public str options
+    cdef public bytes options
     """
     @ivar options: OPT RR contents
-    @type options: str
+    @type options: bytes
     """
 
     def __init__(self, version, flags, size, options):
