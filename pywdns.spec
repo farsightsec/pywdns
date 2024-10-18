@@ -1,5 +1,5 @@
 Name:           python3-pywdns
-Version:        0.10.1
+Version:        0.10.2
 Release:        2%{?dist}
 Summary:        low-level DNS library (Python3 bindings)
 
