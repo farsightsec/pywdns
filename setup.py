@@ -20,7 +20,7 @@ import unittest
 
 
 NAME = 'pywdns'
-VERSION = '0.10.1'
+VERSION = '0.10.2'
 LICENSE = 'Apache License 2.0'
 DESCRIPTION = 'Python extension module for the wdns C library'
 URL = 'https://github.com/farsightsec/pywdns'
