@@ -1,3 +1,9 @@
+pywdns (0.10.2-2) debian-farsightsec; urgency=medium
+
+  * Update dependency for trixie.
+
+ -- Farsight Security Inc <software@farsightsecurity.com>  Wed, 20 Aug 2025 13:39:48 -0400
+
 pywdns (0.10.2-1) debian-farsightsec; urgency=medium
 
   * Bugfixes for type matching and documentation.
