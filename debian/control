@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Farsight Security, Inc. <software@farsightsecurity.com>
 Build-Depends:
  cython3 (>= 0.15~),
- dh-compat (= 13),
+ debhelper-compat (= 13),
  dh-python,
  libwdns-dev (>= 0.9.0~),
  pkg-config,
