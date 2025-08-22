@@ -4,12 +4,13 @@ Priority: optional
 Maintainer: Farsight Security, Inc. <software@farsightsecurity.com>
 Build-Depends:
  cython3 (>= 0.15~),
- debhelper (>= 11~),
+ debhelper-compat (= 13),
  dh-python,
  libwdns-dev (>= 0.9.0~),
  pkg-config,
  python3-all-dev (>= 3.5~),
-Standards-Version: 3.9.8
+ python3-setuptools,
+Standards-Version: 4.5.1
 
 Package: python3-wdns
 Architecture: any
