@@ -8,8 +8,8 @@ URL:            https://github.com/farsightsec/pywdns/
 Source0:        https://dl.farsightsecurity.com/dist/pywdns/pywdns-%{version}.tar.gz
 
 #BuildArch:
-BuildRequires:  wdns-devel
-BuildRequires:  python3-devel python36-Cython
+BuildRequires:  gcc wdns-devel
+BuildRequires:  python3-devel python3-Cython
 Requires:	wdns
 
 %description
